@@ -1,5 +1,5 @@
 import os
-from src.file_encript import encrypt_file
+from src.file_encript import encrypt_file, decrypt_file
 from src.encriptar import encrypt_folder
 
 def main():
@@ -10,7 +10,7 @@ def main():
         return
 
     opcion = input("¿Qué quieres cifrar? (1=Archivo, 2=Carpeta): ")
-    ruta = input("Ruta del archivo/carpeta: ").strip('"') # .strip quita comillas si arrastras el fichero
+    ruta = input("Ruta del archivo/carpeta: ").strip('"') 
     password = input("Contraseña: ")
     if opcion == "1":
         if os.path.isfile(ruta):
@@ -27,10 +27,12 @@ def main():
             print("Error: Eso no es una carpeta.")
     elif opcion == "3":
         if os.path.isfile(ruta):
-            res = decrypt_file(ruta, password)
-            print(f"Resultado: {res}")
+            exito, msj = decrypt_file(ruta, password) 
         else:
             print("Error: Eso no es un archivo.")
+    elif opcion == "4":
+        if os.path.isdir(ruta):
+            print(decrypt_folder(ruta, password))
     else:
         print("Opción no válida.")
 
