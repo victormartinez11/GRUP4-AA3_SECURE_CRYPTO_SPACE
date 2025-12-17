@@ -9,7 +9,7 @@ def main():
         print("Ejecuta primero: python generar_saltprovisonal.py")
         return
 
-    opcion = input("¿Qué quieres cifrar? (1=Archivo, 2=Carpeta): ")
+    opcion = input("¿Qué quieres cifrar? (1=Archivo, 2=Carpeta, 3=Desencriptar archivo, 4=Desencriptar carpeta): ")
     ruta = input("Ruta del archivo/carpeta: ").strip('"') 
     password = input("Contraseña: ")
     if opcion == "1":
@@ -28,11 +28,15 @@ def main():
     elif opcion == "3":
         if os.path.isfile(ruta):
             exito, msj = decrypt_file(ruta, password) 
+            print(f"Resultado: {msj}")
         else:
             print("Error: Eso no es un archivo.")
     elif opcion == "4":
         if os.path.isdir(ruta):
-            print(decrypt_folder(ruta, password))
+            res = decrypt_folder(ruta, password)
+            print(res)
+        else:
+            print("Error: Eso no es una carpeta.")
     else:
         print("Opción no válida.")
 
