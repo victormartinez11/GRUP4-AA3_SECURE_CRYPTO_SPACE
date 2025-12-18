@@ -1,7 +1,7 @@
 import os
 from src.file_encript import encrypt_file, decrypt_file
 from src.encriptar import encrypt_folder
-
+#TEST
 def main():
     print("--- MENU TEST ---") 
     if not os.path.exists("file_salt.key"):
