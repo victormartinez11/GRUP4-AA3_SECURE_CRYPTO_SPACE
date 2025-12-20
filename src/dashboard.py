@@ -2,6 +2,7 @@ import customtkinter as ctk
 import os
 from PIL import Image   
 from src.sidebar import create_sidebar
+from src.file_encript import encrypt_file, decrypt_file
 
 # COLORS
 COLOR_BG = "#0f111a"
@@ -18,6 +19,8 @@ except Exception as e:
     print(f"Error loading images: {e}")
 
 def dashboard(app):
+
+    app_state = [False]
     # Grid conf
     app.grid_columnconfigure(1, weight=1)
     app.grid_rowconfigure(0, weight=1)
@@ -49,12 +52,48 @@ def dashboard(app):
     label_arxiu_seleccionat = ctk.CTkLabel(action_bar, text="Ningún archivo seleccionado", text_color="gray", font=("Arial", 12))
     label_arxiu_seleccionat.pack(side="left", padx=20, pady=15)
 
-    # Actions--->MODIFICAR PARA usar 
+    # Actions
     def accio_encriptar():
-        print("Cifrando...") # Placeholder
-    
+        if not app_state[0]:
+            return
+            
+        dialog = ctk.CTkInputDialog(text="Introduce la contraseña para encriptar:", title="Encriptar")
+        password = dialog.get_input()
+        
+        if password:
+            # Llamamos a la función de encriptación
+            exito, mensaje = encrypt_file(app_state[0], password)
+            if exito:
+                print(f"Éxito: {mensaje}")
+                # Actualizamos la vista
+                llistar_directori()
+                label_arxiu_seleccionat.configure(text="S'ha encriptat l'arxiu", text_color=GREEN)
+                # Reseteamos estado botones
+                botons_xifrar.configure(state="disabled")
+                botons_desxifrar.configure(state="disabled")
+            else:
+                print(f"Error: {mensaje}")
+                label_arxiu_seleccionat.configure(text=f"Error: {mensaje}", text_color=RED)
+
     def accio_desencriptar():
-        print("Descifrando...") # Placeholder
+        if not app_state[0]:
+            return
+
+        dialog = ctk.CTkInputDialog(text="Introduce la contraseña para desencriptar:", title="Desencriptar")
+        password = dialog.get_input()
+        
+        if password:
+            # Llamamos a la función de desencriptación
+            exito, mensaje = decrypt_file(app_state[0], password)
+            if exito:
+                print(f"Éxito: {mensaje}")
+                llistar_directori()
+                label_arxiu_seleccionat.configure(text="S'ha desencriptat l'arxiu", text_color=GREEN)
+                botons_xifrar.configure(state="disabled")
+                botons_desxifrar.configure(state="disabled")
+            else:
+                print(f"Error: {mensaje}")
+                label_arxiu_seleccionat.configure(text=f"Error: {mensaje}", text_color=RED)
 
     # Buttons    
     botons_desxifrar = ctk.CTkButton(action_bar, text="DESENCRIPTAR", fg_color="RED", border_width=1, border_color="gray", state="disabled", text_color="gray", hover_color="#e74c3c", width=120, command=accio_desencriptar)
@@ -66,6 +105,7 @@ def dashboard(app):
     # Selection Logic
     def sel_element(nom_arxiu):
         arxiu_seleccionat = os.path.join(os.getcwd(), nom_arxiu)
+        app_state[0] = arxiu_seleccionat
         print(f"Seleccionat: {arxiu_seleccionat}")
         
         # Update selected
@@ -89,6 +129,9 @@ def dashboard(app):
 
     # List Directory
     def llistar_directori():
+        for widget in files_grid.winfo_children():
+            widget.destroy()
+
         try:
             items = os.listdir(".")
         except Exception as e:
