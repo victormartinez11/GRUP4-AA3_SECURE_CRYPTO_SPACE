@@ -6,6 +6,8 @@ def create_sidebar(parent, color_sidebar):
 
     titol_lateral = ctk.CTkLabel(barra_lateral, text="Accessos ràpids", font=("Arial", 16, "bold"), text_color="white")
     titol_lateral.pack(pady=20)
+
+
     # Botton Sortir
     boton_salir = ctk.CTkButton(barra_lateral, text="Cerrar Vault", fg_color="#c0392b", command=parent.destroy)
     boton_salir.pack(side="bottom", pady=20, padx=10)
