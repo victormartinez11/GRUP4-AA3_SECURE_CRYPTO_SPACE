@@ -3,6 +3,7 @@ import os
 from PIL import Image   
 from src.sidebar import create_sidebar
 from src.file_encript import encrypt_file, decrypt_file
+import datetime
 
 # COLORS
 COLOR_BG = "#0f111a"
@@ -15,6 +16,7 @@ RED="#c0392b"
 try:
     IMG_FOLDER = ctk.CTkImage(light_image=Image.open("assets/folder.png"), dark_image=Image.open("assets/folder.png"), size=(50, 50))
     IMG_FILE = ctk.CTkImage(light_image=Image.open("assets/file.png"), dark_image=Image.open("assets/file.png"), size=(50, 50))
+    IMG_LOCK   = ctk.CTkImage(light_image=Image.open("assets/candado.png"), dark_image=Image.open("assets/candado.png"), size=(50, 50))
 except Exception as e:
     print(f"Error loading images: {e}")
 
@@ -51,6 +53,30 @@ def dashboard(app):
     # Label for file selection
     label_arxiu_seleccionat = ctk.CTkLabel(action_bar, text="Ningún archivo seleccionado", text_color="gray", font=("Arial", 12))
     label_arxiu_seleccionat.pack(side="left", padx=20, pady=15)
+
+    # FILES GRID
+    files_grid = ctk.CTkScrollableFrame(area_principal, fg_color="transparent")
+    files_grid.pack(fill="both", expand=True, padx=20, pady=10)
+
+    def sel_element(name):
+        ruta_absoluta = os.getcwd()
+        full_path = os.path.join(ruta_absoluta, name)
+        app_state[0] = full_path
+        
+        label_arxiu_seleccionat.configure(text=f"Seleccionado: {name}", text_color="white")
+        
+        if os.path.isdir(full_path):
+            botons_xifrar.configure(state="disabled")
+            botons_desxifrar.configure(state="disabled")
+            return
+
+        if name.endswith(".enc"):
+            botons_xifrar.configure(state="disabled")
+            botons_desxifrar.configure(state="normal")
+        else:
+            botons_xifrar.configure(state="normal")
+            botons_desxifrar.configure(state="disabled")
+
 
     # Actions
     def accio_encriptar():
@@ -103,75 +129,144 @@ def dashboard(app):
     botons_xifrar.pack(side="right", padx=0, pady=10)
 
     # Selection Logic
-    def sel_element(nom_arxiu):
-        arxiu_seleccionat = os.path.join(os.getcwd(), nom_arxiu)
-        app_state[0] = arxiu_seleccionat
-        print(f"Seleccionat: {arxiu_seleccionat}")
-        
-        # Update selected
-        label_arxiu_seleccionat.configure(text=f"{nom_arxiu}", text_color="white")
-        
-        if nom_arxiu.endswith(".enc"):
-            # Encriptar
-            botons_xifrar.configure(state="disabled", text_color="gray", border_color="gray")   
-            botons_desxifrar.configure(state="normal", text_color="white", border_color="#e74c3c")
-        else:
-            # Desencriptar
-            botons_xifrar.configure(state="normal", text_color="white", border_color="#2ecc71")   
-            botons_desxifrar.configure(state="disabled", text_color="gray", border_color="gray")
-
-    # Files Grid
-    files_grid = ctk.CTkScrollableFrame(area_principal, fg_color=COLOR_CARD, label_text_color="white")
-    files_grid.pack(fill="both", expand=True, padx=10, pady=10)
-    
-    for i in range(5):
-        files_grid.grid_columnconfigure(i, weight=1)
-
-    # List Directory
     def llistar_directori():
+        # Neteja de widgets anteriors
         for widget in files_grid.winfo_children():
             widget.destroy()
-
+        #Llista de fitxers
         try:
-            items = os.listdir(".")
+            ruta_absoluta = os.getcwd()
+            items = os.listdir(ruta_absoluta)
         except Exception as e:
-            items = [f"Error: {e}"]
+            items = []
+            print(f"Error: {e}")
+        #Configuracio de columnes
+        files_grid.grid_columnconfigure(0, weight=0, minsize=40) # Icono 
+        files_grid.grid_columnconfigure(1, weight=2, minsize=70) # Nombre 
+        files_grid.grid_columnconfigure(2, weight=1, minsize=120) # Fecha 
+        files_grid.grid_columnconfigure(3, weight=0, minsize=80)  # Tamaño 
+        files_grid.grid_columnconfigure(4, weight=0, minsize=100) # Estado 
 
-        row, col = 0, 0
+        # CAPSALERES
+        fuente_header = ("Arial", 12, "bold")
+        color_header = "#5c55e6"
+        
+        headers = ["", "NOMBRE", "FECHA", "TAMAÑO", "ESTADO"] 
+        
+        col_configs = [
+            {"anchor": "center", "justify": "center", "padx": 5}, # Icono
+            {"anchor": "w",      "justify": "left",   "padx": 5}, # Nombre
+            {"anchor": "w",      "justify": "left",   "padx": 5}, # Fecha
+            {"anchor": "e",      "justify": "right",  "padx": 5}, # Tamaño
+            {"anchor": "e",      "justify": "right",  "padx": (5, 10)} # Estado
+        ]
+        
+        for i, h in enumerate(headers):
+            cfg = col_configs[i]
+            ctk.CTkLabel(
+                files_grid, 
+                text=h, 
+                font=fuente_header, 
+                text_color=color_header,
+                anchor=cfg["anchor"]
+            ).grid(row=0, column=i, sticky="ew", padx=cfg["padx"], pady=(5, 10))
+        #FILES
+        row = 1
         for name in items:
-            es_carpeta = os.path.isdir(name)
+            if name.startswith("."): 
+                print(f"Ignorando archivo oculto: {name}")
+                continue 
+            full_path = os.path.join(ruta_absoluta, name)
             
-            # Select icon
-            if IMG_FOLDER and IMG_FILE:
-                icon_image = IMG_FOLDER if es_carpeta else IMG_FILE
-                text_content = name
-            else:
-                # Fallback if images fail
-                icon_char = "📁" if es_carpeta else "📄"
-                icon_image = None
-                text_content = f"{icon_char}\n{name}"
+            try:
+                stats = os.stat(full_path)
+                es_carpeta = os.path.isdir(full_path)
+                es_encriptado = name.endswith(".enc")
+                fecha_ts = stats.st_mtime
+                fecha_txt = datetime.datetime.fromtimestamp(fecha_ts).strftime('%Y-%m-%d %H:%M')
+                
+                if es_carpeta:
+                    size_txt = "-"
+                else:
+                    size_txt = f"{stats.st_size / 1024:.1f} KB"
+
+                # ICONS LOGIC
+                if es_carpeta:
+                    target_img = IMG_FOLDER
+                    fallback_txt = "DIR"
+                    estado_txt = ""
+                    color_estado = "white"
+                elif es_encriptado:
+                    target_img = IMG_LOCK
+                    fallback_txt = "LOCK"
+                    estado_txt = "ENCRIPTADO"
+                    color_estado = "#ff4757"
+                else: 
+                    target_img = IMG_FILE
+                    fallback_txt = "FILE"
+                    estado_txt = "VISIBLE"
+                    color_estado = "#2ed573"
             
-            file_container = ctk.CTkFrame(files_grid, fg_color=COLOR_CARD, width=120, height=120)
-            file_container.grid(row=row, column=col, padx=5, pady=5)
-            
-            button = ctk.CTkButton(
-                file_container,
-                text=text_content,
-                image=icon_image,
-                text_color="white",
-                font=("Arial", 11),
+                if target_img is not None:
+                    img_actual = target_img
+                    txt_icono = ""  
+                else:
+                    img_actual = None
+                    txt_icono = fallback_txt
+
+            except Exception:
+                continue 
+            pady_fila = 2 
+            # ICONO
+            ctk.CTkLabel(
+                files_grid, 
+                text=txt_icono,   
+                image=img_actual,  
+                width=30,
+                anchor="center"
+            ).grid(row=row, column=0, sticky="ew", padx=col_configs[0]["padx"], pady=pady_fila)
+
+            # NOMBRE 
+            btn_nombre = ctk.CTkButton(
+                files_grid,
+                text=name,
+                font=("Arial", 12),
                 fg_color="transparent",
-                hover_color="#e5f1fb",
-                width=110,
-                height=100,
-                compound="top",
+                text_color="white", 
+                hover_color="#2f3542",
+                anchor="w", 
+                height=24,  
                 command=lambda n=name: sel_element(n)
             )
-            button.pack()
+            btn_nombre.grid(row=row, column=1, sticky="ew", padx=col_configs[1]["padx"], pady=pady_fila)
+            
+            # DATA
+            ctk.CTkLabel(
+                files_grid, 
+                text=fecha_txt, 
+                font=("Arial", 12), 
+                text_color="gray", 
+                anchor="w"
+            ).grid(row=row, column=2, sticky="ew", padx=col_configs[2]["padx"], pady=pady_fila)
 
-            col += 1
-            if col > 4:
-                col = 0
-                row += 1
+            # TAMANY
+            ctk.CTkLabel(
+                files_grid, 
+                text=size_txt, 
+                font=("Arial", 12), 
+                text_color="gray", 
+                anchor="e"
+            ).grid(row=row, column=3, sticky="ew", padx=col_configs[3]["padx"], pady=pady_fila)
+
+            # ESTAT
+            ctk.CTkLabel(
+                files_grid, 
+                text=estado_txt, 
+                font=("Arial", 10, "bold"), 
+                text_color=color_estado, 
+                anchor="e"
+            ).grid(row=row, column=4, sticky="ew", padx=col_configs[4]["padx"], pady=pady_fila+1)
+
+            row += 1
 
     llistar_directori()
