@@ -81,11 +81,9 @@ def dashboard(app):
     # Actions
     def accio_encriptar():
         if not app_state[0]:
-            return
-            
+            return   
         dialog = ctk.CTkInputDialog(text="Introduce la contraseña para encriptar:", title="Encriptar")
         password = dialog.get_input()
-        
         if password:
             # Llamamos a la función de encriptación
             exito, mensaje = encrypt_file(app_state[0], password)
