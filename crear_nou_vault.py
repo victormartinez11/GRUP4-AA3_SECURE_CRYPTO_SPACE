@@ -1,22 +1,26 @@
 # -*- coding: latin-1 -*-
 
+#importación de recursos necessarios
 import os
 import hashlib
 import shutil
 
-BASE_DIR = "storage"
-VAULT = os.path.join(BASE_DIR, "Vault")
-PASSWORD_FILE = os.path.join(BASE_DIR, "password.txt")
+BASE_DIR = "storage" #carpeta base
+VAULT = os.path.join(BASE_DIR, "Vault") #carpeta donde se guardaran los archivos
+PASSWORD_FILE = os.path.join(BASE_DIR, "password.txt") archivo donde se guarda la contraseña cifrada
 
+#función para crear el vault si no existe
 def create_vault():
     if not os.path.exists(VAULT):
         os.makedirs(VAULT)
 
+#función para guardar la contraseña del usuario, cifrado con SHA-256
 def set_password(password):
     hashed = hashlib.sha256(password.encode()).hexdigest()
     with open(PASSWORD_FILE, "w") as f:
         f.write(hashed)
 
+#devuelve si la contraseña es correcta o no
 def check_password(password):
     if not os.path.exists(PASSWORD_FILE):
         return False
@@ -25,6 +29,7 @@ def check_password(password):
     with open(PASSWORD_FILE, "r") as f:
         return f.read() == hashed
 
+#función para importar un archivo al vault
 def import_file(file_path, password):
     if not check_password(password):
         print("Contraseña incorrecta.")
