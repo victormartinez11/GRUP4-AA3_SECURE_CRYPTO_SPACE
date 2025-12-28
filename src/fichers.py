@@ -1,4 +1,6 @@
-
+import json
+import os
+import src.vars as var
 def read_key():
     try:
         with open("file_key.key", "r") as key_file:
@@ -32,7 +34,21 @@ def salt_read_file():
             salt = salt_file.read()
         return salt
     except FileNotFoundError:
-        return None
+        print("[ERROR] Salt not found")
     except Exception as e:
         print("[ERROR] Reading salt: ", e)
-        return None
+      
+
+def read_users():
+    try:
+        if not os.path.exists(var.USERS_FILE):
+            print("[ERROR] Users not found")
+            return userslist=[]
+        else:
+            with open(var.USERS_FILE, "r") as users_file:
+                userslist = json.load(users_file)
+            return userslist
+
+    except Exception as e:
+        print("[ERROR] Reading users: ", e)
+      

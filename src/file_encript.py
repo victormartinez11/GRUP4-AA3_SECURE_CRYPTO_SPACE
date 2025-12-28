@@ -8,20 +8,20 @@ from src.fichers import salt_read_file
 ##FUNCIO PER DESENCRIPTAR
 from cryptography.fernet import Fernet, InvalidToken
 
-def get_key_for_file_encription(password):
-    #SOLO lee la sal. Si no existe, lanza error. 
-    salt = salt_read_file()
-    if salt == None:
-        raise FileNotFoundError("CRITICAL: No se encuentra el archivo de Salt. El usuario no está registrado.")
-    # Si la sal existe, derivamos la clave
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=480000,
-    )
-    salt=base64.urlsafe_b64encode(kdf.derive(password.encode()))
-    return salt
+# def get_key_for_file_encription(password):
+#     #SOLO lee la sal. Si no existe, lanza error. 
+#     salt = salt_read_file()
+#     if salt == None:
+#         raise FileNotFoundError("CRITICAL: No se encuentra el archivo de Salt. El usuario no está registrado.")
+#     # Si la sal existe, derivamos la clave
+#     kdf = PBKDF2HMAC(
+#         algorithm=hashes.SHA256(),
+#         length=32,
+#         salt=salt,
+#         iterations=480000,
+#     )
+#     salt=base64.urlsafe_b64encode(kdf.derive(password.encode()))
+#     return salt
     
 def encrypt_file(file_path, password):
     #Cifra usando la contraseña del usuario
