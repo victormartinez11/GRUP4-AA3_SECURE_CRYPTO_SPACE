@@ -39,7 +39,7 @@ def salt_read_file():
         print("[ERROR] Reading salt: ", e)
       
 
-def read_users():
+def read_usersjson():
     try:
         if not os.path.exists(var.USERS_FILE):
             print("[ERROR] Users not found")

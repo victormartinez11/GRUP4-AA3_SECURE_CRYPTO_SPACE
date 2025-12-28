@@ -1,6 +1,13 @@
-
-
-
+import src.vars as var
+import src.fichers as fichers
+import src.core.security as secure
+def user_exists(username):
+    exists = False
+    userlist = fichers.read_usersjson()
+    for user in userlist:
+        if user.get("username") == username:
+            exists = True
+    return exists
 
 
 def register_validation(username, password, confirm_password):
@@ -13,12 +20,10 @@ def register_validation(username, password, confirm_password):
         elif password != confirm_password:
             raise ValueError("Les contrasenyes no coincideixen.")
         else:
-            userlist = read_users()
-            if username in userlist:
+            if user_exists(username):
                 raise ValueError("El nom d'usuari ja existeix.")
             else:
                 validation = True
 
     return validation
 
-    
