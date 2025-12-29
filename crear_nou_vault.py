@@ -5,32 +5,35 @@ import os
 import hashlib
 import shutil
 
-BASE_DIR = "storage" #carpeta base
-VAULT = os.path.join(BASE_DIR, "Vault") #carpeta donde se guardaran los archivos
-PASSWORD_FILE = os.path.join(BASE_DIR, "password.txt") archivo donde se guarda la contraseña cifrada
+carpeta_base = "storage"
+VAULT = os.path.join(carpeta_base, "Vault") #carpeta donde se guardaran los archivos
+contraseña = os.path.join(carpeta_base, "password.txt") 
 
 #función para crear el vault si no existe
-def create_vault():
+def crear_vault():
     if not os.path.exists(VAULT):
         os.makedirs(VAULT)
 
 #función para guardar la contraseña del usuario, cifrado con SHA-256
-def set_password(password):
+def crear_contraseña(password):
+    os.makedirs(carpeta_base, exist_ok=True)
+
     hashed = hashlib.sha256(password.encode()).hexdigest()
-    with open(PASSWORD_FILE, "w") as f:
+    with open(contraseña, "w") as f:
         f.write(hashed)
 
 #devuelve si la contraseña es correcta o no
-def check_password(password):
-    if not os.path.exists(PASSWORD_FILE):
+def comprovar_contraseña(password):
+    if not os.path.exists(contraseña):
+        print("No hay contraseña configurada.")
         return False
 
     hashed = hashlib.sha256(password.encode()).hexdigest()
-    with open(PASSWORD_FILE, "r") as f:
+    with open(contraseña, "r") as f:
         return f.read() == hashed
 
-#función para importar un archivo al vault
-def import_file(file_path, password):
+#función para importar un archivo al vault y borrarlo en su ubicación anterior
+def importar_archivo(file_path, password):
     if not check_password(password):
         print("Contraseña incorrecta.")
         return
@@ -39,15 +42,14 @@ def import_file(file_path, password):
         print("El archivo no existe.")
         return
 
-    vault = "storage/vault"
     os.makedirs(vault, exist_ok=True)
 
     file_name = os.path.basename(file_path)
     destination = os.path.join(vault, file_name)
 
     try:
-        shutil.copy(file_path, destination)
-
+        shutil.copy(file_path, destination) 
+        
         os.remove(file_path)
 
         print("Archivo importado exitosamente")
