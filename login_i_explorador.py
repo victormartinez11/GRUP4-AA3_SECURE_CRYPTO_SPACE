@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import os
 from src.dashboard import dashboard 
-
+import src.core.authenticate as auth
 app = ctk.CTk()
 app.title("Secure Vault Login")
 app.geometry("400x400") 
@@ -11,17 +11,14 @@ def guardar_usuari():
     usuari = new_user_entry.get()
     contra = new_pass_entry.get()
 
-    if usuari == "" or contra == "":
-        etiqueta_missatge.configure(text="Has de omplir tots els camps!", text_color="red")
-        return
+    exito, mensaje = auth.register_user(usuari, contra)
 
-    try:
-        with open("registre.txt", "a") as fitxer: # 'a' per afegir
-            fitxer.write(f"{usuari},{contra}\n")
-        
-        etiqueta_missatge.configure(text="Saved successfully!", text_color="green")
-    except Exception as e:
-        etiqueta_missatge.configure(text=f"Error: {e}", text_color="red")
+    if exito:
+        etiqueta_missatge.configure(text=mensaje, text_color="green")
+        new_user_entry.delete(0, 'end')
+        new_pass_entry.delete(0, 'end')
+    else:
+        etiqueta_missatge.configure(text=mensaje, text_color="red")
 
 def verificar_usuari():
     usuari = entry.get()
@@ -29,29 +26,17 @@ def verificar_usuari():
     login_correcte = False
 
     try:
-        if not os.path.exists("registre.txt"):
-            etiqueta_login.configure(text="No hi ha usuaris registrats", text_color="orange")
-            return
+        exito, mensaje = auth.login_user(usuari, contra)
 
-        with open("registre.txt","r") as fitxer:
-            for linia in fitxer:
-                dades = linia.strip().split(",")
-                if len(dades) == 2:
-                    if dades[0] == usuari and dades[1] == contra:
-                        login_correcte = True
-                        break 
-
-        if login_correcte:
-            etiqueta_login.configure(text="Login Correcte!", text_color="green")
+        if exito:
+            etiqueta_login.configure(text=mensaje, text_color="green")
             print("Login acceptat. Carregant dashboard...")
             app.after(500, carregar_dashboard) 
-            
         else:
-            etiqueta_login.configure(text="Usuari o contrasenya incorrectes", text_color="red")
+            etiqueta_login.configure(text=mensaje, text_color="red")
 
     except Exception as e:
         etiqueta_login.configure(text=f"Error al llegir: {e}", text_color="red")
-
 def show_register():
     login_frame.pack_forget()
     register_frame.pack(fill="both", expand=True, pady=20)
