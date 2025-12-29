@@ -51,13 +51,14 @@ def read_usersjson():
             return userslist
 
     except Exception as e:
-        print("[ERROR] Reading users: ", e)
+        print("[WARNING] Error reading users or empty file, returning empty list:", e)
+        return []
       
 def write_usersjson(data):
     try:
         os.makedirs(os.path.dirname(var.USERS_FILE), exist_ok=True)
         with open(var.USERS_FILE, "w") as file_users:
-            json.dump(data, file_users)
+            json.dump(data, file_users, indent=4)
 
     except Exception as e:
         print("[ERROR] Writing users: ", e)
