@@ -43,12 +43,21 @@ def read_usersjson():
     try:
         if not os.path.exists(var.USERS_FILE):
             print("[ERROR] Users not found")
-            return userslist=[]
+            userslist = []
+            return userslist
         else:
-            with open(var.USERS_FILE, "r") as users_file:
-                userslist = json.load(users_file)
+            with open(var.USERS_FILE, "r") as file_users:
+                userslist = json.load(file_users)
             return userslist
 
     except Exception as e:
         print("[ERROR] Reading users: ", e)
       
+def write_usersjson(data):
+    try:
+        os.makedirs(os.path.dirname(var.USERS_FILE), exist_ok=True)
+        with open(var.USERS_FILE, "w") as file_users:
+            json.dump(data, file_users)
+
+    except Exception as e:
+        print("[ERROR] Writing users: ", e)
