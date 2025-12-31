@@ -20,7 +20,7 @@ try:
 except Exception as e:
     print(f"Error loading images: {e}")
 
-def dashboard(app):
+def dashboard(app, current_user):
 
     app_state = [False]
     # Grid conf
@@ -41,7 +41,7 @@ def dashboard(app):
     #MODIFICAR PARA QUE SEA FUNCION Y PASE RUTA POR PARAMETRO
     ruta_static = ctk.CTkLabel(path_container, text="Ruta:", text_color="#5c55e6", font=("Consolas", 14, "bold"))
     ruta_static.pack(side="left")
-    
+     
     ruta_actual = f" {os.getcwd()}"
     cami_directori = ctk.CTkLabel(path_container, text=ruta_actual, text_color="#a0a0a0", font=("Consolas", 14))
     cami_directori.pack(side="left")
@@ -82,10 +82,9 @@ def dashboard(app):
     def accio_encriptar():
         if not app_state[0]:
             return
-            
+
         dialog = ctk.CTkInputDialog(text="Introduce la contraseña para encriptar:", title="Encriptar")
         password = dialog.get_input()
-        
         if password:
             # Llamamos a la función de encriptación
             exito, mensaje = encrypt_file(app_state[0], password)

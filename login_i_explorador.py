@@ -21,6 +21,7 @@ def guardar_usuari():
         etiqueta_missatge.configure(text=mensaje, text_color="red")
 
 def verificar_usuari():
+    global usuari_auth
     usuari = entry.get()
     contra = password_entry.get()
     login_correcte = False
@@ -29,6 +30,7 @@ def verificar_usuari():
         exito, mensaje = auth.login_user(usuari, contra)
 
         if exito:
+            usuari_auth = usuari
             etiqueta_login.configure(text=mensaje, text_color="green")
             print("Login acceptat. Carregant dashboard...")
             app.after(500, carregar_dashboard) 
@@ -84,15 +86,11 @@ login_frame.pack(fill="both", expand=True, pady=20)
 
 
 def carregar_dashboard():
-# Eliminem completament els frames del Login
     login_frame.destroy()
     register_frame.destroy()
     
-
     app.geometry("950x650")
-    app.title("Explorador de Fitxers")
-    
-
-    dashboard(app)
+    app.title(f"Secure Vault-{usuari_auth}")
+    dashboard(app, usuari_auth)
 
 app.mainloop()
