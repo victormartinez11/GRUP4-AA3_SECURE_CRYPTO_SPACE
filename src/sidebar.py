@@ -1,18 +1,32 @@
 import customtkinter as ctk
-
+from src import importfile
 def create_sidebar(parent, color_sidebar):
-    barra_lateral = ctk.CTkFrame(parent, width=200, corner_radius=0, fg_color=color_sidebar)
-    barra_lateral.grid(row=0, column=0, sticky="nsew")
+    sidebar = ctk.CTkFrame(parent, width=200, corner_radius=0, fg_color=color_sidebar)
+    sidebar.grid(row=0, column=0, sticky="nsew")
 
-    titol_lateral = ctk.CTkLabel(barra_lateral, text="Accessos ràpids", font=("Arial", 16, "bold"), text_color="white")
-    titol_lateral.pack(pady=20)
+    title = ctk.CTkLabel(sidebar, text="Accessos ràpids", font=("Arial", 16, "bold"), text_color="white")
+    title.pack(pady=20)
 
+    # Quick Access Buttons
+    for item in ["Escriptori", "Descargues", "Documents", "Imatges"]:
+        color_button = ctk.CTkButton(sidebar, text=item, fg_color="transparent", text_color="white", hover_color="grey", anchor="w")
+        color_button.pack(fill="x", padx=10, pady=2)
 
     # Botton Sortir
-    boton_salir = ctk.CTkButton(barra_lateral, text="Cerrar Vault", fg_color="#c0392b", command=parent.destroy)
-    boton_salir.pack(side="bottom", pady=20, padx=10)
-    for item in ["Escriptori", "Descargues", "Documents", "Imatges"]:
-        colors_botons = ctk.CTkButton(barra_lateral, text=item, fg_color="transparent", text_color="white", hover_color="grey", anchor="w")
-        colors_botons.pack(fill="x", padx=10, pady=2)
-    
-    return barra_lateral
+    exit_button = ctk.CTkButton(sidebar, text="Cerrar Vault", fg_color="#c0392b", command=parent.destroy, width=180, height=35)
+    exit_button.pack(side="bottom", pady=20, padx=10)
+
+    # Import botton
+    import_button = ctk.CTkButton(
+        sidebar, 
+        text="IMPORTAR", 
+        fg_color="#3498db",
+        text_color="white",
+        hover_color="#2980b9",
+        width=180,
+        height=35,
+        command=importfile.accio_importar
+    )
+    import_button.pack(side="bottom", padx=10, pady=10)
+
+    return sidebar
