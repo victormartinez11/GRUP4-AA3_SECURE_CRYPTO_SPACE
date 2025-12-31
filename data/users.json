@@ -1,0 +1,12 @@
+[
+    {
+        "User": "paco",
+        "Salt": "84afe156f376a1a42b71567007f77cf8",
+        "Hash": "c7ad8c674edb3949d3638c447d2ba4537da6a8953a2482f3380d267664f06915"
+    },
+    {
+        "User": "jose",
+        "Salt": "46bd08c0e79a18f6e2177dbf4f158f32",
+        "Hash": "a83b742e6e9a7948bb4dbe0056c7a1517a23e45ffbb837f4a2f371b8ed457984"
+    }
+]
