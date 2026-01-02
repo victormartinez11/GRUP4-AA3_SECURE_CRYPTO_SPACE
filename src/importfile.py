@@ -1,16 +1,17 @@
-import shutil #Copi file
-from customtkinter import filedialog # Windows selector
+import shutil #Copiar fitxer
+from customtkinter import filedialog # Selector de fitxer 
 import os
 
+#Funcio per importar fitxer
 def accio_importar():
     try:
-        #Open windows explorer
+        #Obrir explorador de fitxers
         origin= filedialog.askopenfilename(
                 title="Import to vault",
                 filetypes=(("All files", "*.*"), ("Text files", "*.txt"), ("Image files", "*.png;*.jpg"))
             )
         if origin:
-            #Copy file
+            #Copiar fitxer
             destination = os.getcwd()
             shutil.copy(origin, destination)
             print(f"File imported: {origin}")
