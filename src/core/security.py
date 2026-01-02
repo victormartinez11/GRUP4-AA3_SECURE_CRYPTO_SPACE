@@ -24,6 +24,17 @@ def key_derivation(password,salt):
         raise ValueError(f"Key ha de tenir una longitud de {var.KEY_SIZE}")
     return key
 
-
-
-      
+def calculate_file_hash(file_path):
+    try:
+        sha256_hash = hashlib.sha256()
+    
+        with open(file_path, "rb") as f:
+            chunk = f.read(var.CHUNK_SIZE)
+            while len(chunk) > 0:
+                sha256_hash.update(chunk)
+                chunk = f.read(var.CHUNK_SIZE)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        print(f"[Error]: No es troba el fitxer {file_path}")
+    except Exception as e:
+        print(f"[Error]: {e}")
