@@ -75,3 +75,57 @@ def validate_file(path):
         raise IsADirectoryError(f"La ruta és una carpeta, no un fitxer: {path}") 
 
     return True
+
+def write_content(path, data, binary):
+    try:
+        folder = os.path.dirname(path)
+        if folder not in os.listdir(): 
+            os.makedirs(folder, exist_ok=True)
+    except Exception as e:
+        print("[ERROR] Creating folder: ", e)
+    
+    try:
+        if binary == True:
+            mode = "wb"
+        else:
+            mode = "w"
+        
+        with open(path, mode) as f:
+            f.write(data)
+        correcte = True
+        return correcte, f"Fitxer guardat: {path}"
+
+    except Exception as e:
+        print("[ERROR] Writing file: ", e)
+        correcte = False
+        return correcte, f"Error escrivint {path}: {e}"
+
+def read_content(path, binary):
+    valid, msg = validate_file(path)
+    if valid == False:
+        return valid, msg
+    try:
+        if binary == True:
+            mode = "rb"
+        else:
+            mode = "r"
+        
+        with open(path, mode) as f:
+            data = f.read()
+        
+        correcte = True
+        return correcte, data
+    except FileNotFoundError:
+        print("[ERROR] File not found: ", path)
+        correcte = False
+        return correcte, f"Fitxer no trobat: {path}"
+
+    except IsADirectoryError:
+        print("[ERROR] Path is a directory: ", path)
+        correcte = False
+        return correcte, f"La ruta és una carpeta, no un fitxer: {path}"
+
+    except Exception as e:
+        print("[ERROR] Reading file: ", e)
+        correcte = False
+        return correcte, f"Error llegint {path}: {e}"

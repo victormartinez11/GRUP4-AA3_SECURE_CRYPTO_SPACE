@@ -53,6 +53,42 @@ def encrypt_file(file_path, password, output=None):
         output = os.path.basename(output)
         return False, f"Error: Ja existeix un fitxer amb aquest nom: {output}"
 
+    try:
+        # Genera un salt aleatori que representara al fitcher a encriptar
+        salt = generate_salt()
+        # Derivar la key a partir de la password de l'usuario i la salt nou creat per el fitxer 
+        key = key_derivation(password, salt)
+        # Generar un IV aleatori pero el fitxer
+        iv = os.urandom(16)
+        with open(input_path, "rb") as f:
+            file_data = f.read()
+
+        # Calcular el HASH abans de encriptar
+        original_hash = calculate_hash(file_data) # 32 bytes
+
+        # Padding
+        padder = padding.PKCS7(128).padder()
+        padded_data = padder.update(file_data) + padder.finalize()
+
+        # Encriptar
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+
+        #Genera el fitxer encriptat
+        final_content = salt + iv + original_hash + encrypted_data
+        
+        binary=True
+        fildata=fil.write_content(output_path, final_content, binary)
+        if not fildata:
+            return False, "Error crític durant el xifratge"
+        return True, fildata
+
+    except Exception as e:
+        return False, f"Error crític durant el xifratge: {e}"
+
+
+
 def decrypt_file(file_path, password):
     try:
         # Recuperamos la MISMA clave usando la contraseña pasada por el usuario en caso de UI el pass de login
