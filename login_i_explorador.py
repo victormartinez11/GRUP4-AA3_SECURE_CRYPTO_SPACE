@@ -22,6 +22,7 @@ def guardar_usuari():
 
 def verificar_usuari():
     global usuari_auth
+    global pass_auth
     usuari = entry.get()
     contra = password_entry.get()
     login_correcte = False
@@ -31,6 +32,7 @@ def verificar_usuari():
 
         if exito:
             usuari_auth = usuari
+            pass_auth = contra
             etiqueta_login.configure(text=mensaje, text_color="green")
             print("Login acceptat. Carregant dashboard...")
             app.after(500, carregar_dashboard) 
@@ -91,6 +93,6 @@ def carregar_dashboard():
     
     app.geometry("950x650")
     app.title(f"Secure Vault-{usuari_auth}")
-    dashboard(app, usuari_auth)
+    dashboard(app, usuari_auth, pass_auth)
 
 app.mainloop()
