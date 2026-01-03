@@ -62,3 +62,16 @@ def write_usersjson(data):
 
     except Exception as e:
         print("[ERROR] Writing users: ", e)
+
+# Validar ruta de fitxer
+def validate_file(path):
+    if not path:
+        raise ValueError("La ruta està buida.") 
+
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"No s'ha trobat el fitxer: {path}") 
+    
+    if not os.path.isfile(path):
+        raise IsADirectoryError(f"La ruta és una carpeta, no un fitxer: {path}") 
+
+    return True

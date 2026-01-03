@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 import src.vars as var
-
+import src.fichers as fil
 # Genera una salt aleatoria de 16 bytes
 def generate_salt():
     salt=os.urandom(16)
@@ -38,3 +38,46 @@ def calculate_file_hash(file_path):
         print(f"[Error]: No es troba el fitxer {file_path}")
     except Exception as e:
         print(f"[Error]: {e}")
+
+
+#Encripta i desencripta un fitxer
+def encrypt_file(file_path, password, output=None):
+    validate, missatge = fil.validate_file(file_path)
+    if not validate:
+        return False, missatge
+
+    if output is None:
+        output = file_path + ".enc"
+    
+    if os.path.exists(output):
+        output = os.path.basename(output)
+        return False, f"Error: Ja existeix un fitxer amb aquest nom: {output}"
+
+def decrypt_file(file_path, password):
+    try:
+        # Recuperamos la MISMA clave usando la contraseña pasada por el usuario en caso de UI el pass de login
+        key = get_key_for_file_encription(password)
+        f = Fernet(key)
+        # archivo cifrado (.enc)
+        with open(file_path, "rb") as file:
+            encrypted_data = file.read()
+        # desencriptar
+        # Si la password es incorrecta, aquí saltará un error (InvalidToken)
+        decrypted_data = f.decrypt(encrypted_data)
+        # Quitar extensión .enc para recuperar el nombre original
+        if file_path.endswith(".enc"):
+            new_path = file_path[:-4] # Borra los últimos 4 caracteres (.enc)
+        else:
+            new_path = file_path + ".decrypted"
+        # Guardado del archivo limpio
+        with open(new_path, "wb") as file:
+            file.write(decrypted_data)
+        # Borrado del archivo cifrado
+        os.remove(file_path)
+        print(f"Archivo restaurado: {new_path}")
+        return True, new_path
+
+    except InvalidToken:
+        return False, "Contraseña incorrecta"
+    except Exception as e:
+        return False, f"Error al descifrar: {e}"
