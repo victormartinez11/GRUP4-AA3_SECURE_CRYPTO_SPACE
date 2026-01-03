@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from src import importfile
-def create_sidebar(parent, color_sidebar, com_import):
+def create_sidebar(parent, color_sidebar, import_command):
     sidebar = ctk.CTkFrame(parent, width=200, corner_radius=0, fg_color=color_sidebar)
     sidebar.grid(row=0, column=0, sticky="nsew")
 
@@ -25,7 +25,7 @@ def create_sidebar(parent, color_sidebar, com_import):
         hover_color="#2980b9",
         width=180,
         height=35,
-        command=importfile.accio_importar
+        command=import_command
     )
     import_button.pack(side="bottom", padx=10, pady=10)
 

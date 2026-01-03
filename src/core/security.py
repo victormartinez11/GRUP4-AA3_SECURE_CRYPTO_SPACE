@@ -33,12 +33,15 @@ def calculate_file_hash(file_path):
             while len(chunk) > 0:
                 sha256_hash.update(chunk)
                 chunk = f.read(var.CHUNK_SIZE)
-        return sha256_hash.hexdigest()
+        return sha256_hash.digest()
     except FileNotFoundError:
         print(f"[Error]: No es troba el fitxer {file_path}")
     except Exception as e:
         print(f"[Error]: {e}")
 
+def calculate_hash(data):
+    hashcalc=hashlib.sha256(data).digest()
+    return hashcalc
 
 #Encripta i desencripta un fitxer
 def encrypt_file(file_path, password, output=None):
@@ -64,8 +67,8 @@ def encrypt_file(file_path, password, output=None):
             file_data = f.read()
 
         # Calcular el HASH abans de encriptar
-        original_hash = calculate_hash(file_data) # 32 bytes
-
+        #original_hash = calculate_hash(file_data) 
+        original_hash = calculate_file_hash(file_path)
         # Padding
         padder = padding.PKCS7(128).padder()
         padded_data = padder.update(file_data) + padder.finalize()
@@ -90,30 +93,50 @@ def encrypt_file(file_path, password, output=None):
 
 
 def decrypt_file(file_path, password):
-    try:
-        # Recuperamos la MISMA clave usando la contraseña pasada por el usuario en caso de UI el pass de login
-        key = get_key_for_file_encription(password)
-        f = Fernet(key)
-        # archivo cifrado (.enc)
-        with open(file_path, "rb") as file:
-            encrypted_data = file.read()
-        # desencriptar
-        # Si la password es incorrecta, aquí saltará un error (InvalidToken)
-        decrypted_data = f.decrypt(encrypted_data)
-        # Quitar extensión .enc para recuperar el nombre original
-        if file_path.endswith(".enc"):
-            new_path = file_path[:-4] # Borra los últimos 4 caracteres (.enc)
-        else:
-            new_path = file_path + ".decrypted"
-        # Guardado del archivo limpio
-        with open(new_path, "wb") as file:
-            file.write(decrypted_data)
-        # Borrado del archivo cifrado
-        os.remove(file_path)
-        print(f"Archivo restaurado: {new_path}")
-        return True, new_path
+    binary=True
+    exit_lectura, contingut = fil.read_content(file_path, binary)
 
-    except InvalidToken:
-        return False, "Contraseña incorrecta"
+    if not exit_lectura:
+        return False, contingut 
+
+    try:
+        salt = contingut[:16]
+        iv = contingut[16:32]
+        hash_guardat = contingut[32:64]
+        dades_encriptades = contingut[64:]
+
+        key = key_derivation(password, salt)
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        
+        padded_data = decryptor.update(dades_encriptades) + decryptor.finalize()
+
+        unpadder = padding.PKCS7(128).unpadder()
+        dades_originals = unpadder.update(padded_data) + unpadder.finalize()
+
+        hash_calculat = calculate_hash(dades_originals)
+
+        if hash_calculat != hash_guardat:
+            return False, "[ALERTA]: Hash incorrecte. El fitxer podria estar corrupte o manipulat."
+
+        if file_path.endswith(".enc"):
+            ruta_sortida = file_path[:-4]
+        else:
+            ruta_sortida = file_path + ".decrypted"
+
+        exit_escriptura, missatge_escriptura = fil.write_content(ruta_sortida, dades_originals, binary=True)
+        
+        if exit_escriptura:     
+            try:
+                os.remove(file_path)
+            except OSError:
+                pass 
+            
+            return True, f"Arxiu recuperat: {os.path.basename(ruta_sortida)}"
+        else:
+            return False, missatge_escriptura
+
+    except ValueError:
+        return False, "Contrasenya incorrecta."
     except Exception as e:
-        return False, f"Error al descifrar: {e}"
+        return False, f"Error desencriptant: {e}"

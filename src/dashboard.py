@@ -4,7 +4,7 @@ from PIL import Image
 from src.sidebar import create_sidebar
 from src.file_encript import encrypt_file, decrypt_file
 import datetime
-from src import importfile
+import src.importfile as importfile
 # COLORS
 COLOR_BG = "#0f111a"
 COLOR_SIDEBAR = "#161925"
@@ -32,7 +32,7 @@ def dashboard(app, current_user, session_password):
         import_yes = importfile.accio_importar(session_password, current_user)
         if import_yes:
             llistar_directori()
-    create_sidebar(app, COLOR_SIDEBAR, com_import=import_func)
+    create_sidebar(app, COLOR_SIDEBAR, import_command=import_func)
         
     # Main 
     area_principal = ctk.CTkFrame(app, fg_color=COLOR_BG, corner_radius=0)
@@ -137,9 +137,12 @@ def dashboard(app, current_user, session_password):
         for widget in files_grid.winfo_children():
             widget.destroy()
         #Llista de fitxers
+        ruta_vault = os.path.join("data", "vaults", current_user)
+        os.makedirs(ruta_vault, exist_ok=True)
         try:
-            ruta_absoluta = os.getcwd()
-            items = os.listdir(ruta_absoluta)
+            items = os.listdir(ruta_vault)
+            # ruta_absoluta = os.getcwd()
+            # items = os.listdir(ruta_absoluta) 
         except Exception as e:
             items = []
             print(f"Error: {e}")
@@ -179,7 +182,8 @@ def dashboard(app, current_user, session_password):
             if name.startswith("."): 
                 print(f"Ignorando archivo oculto: {name}")
                 continue 
-            full_path = os.path.join(ruta_absoluta, name)
+            #full_path = os.path.join(ruta_absoluta, name)
+            full_path = os.path.join(ruta_vault, name)
             
             try:
                 stats = os.stat(full_path)
