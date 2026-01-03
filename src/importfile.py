@@ -1,9 +1,11 @@
 import shutil #Copiar fitxer
 from customtkinter import filedialog # Selector de fitxer 
 import os
+import src.core.security as secure
+
 
 #Funcio per importar fitxer
-def accio_importar():
+def accio_importar(session_password, current_username):
     try:
         #Obrir explorador de fitxers
         origin= filedialog.askopenfilename(
@@ -11,12 +13,17 @@ def accio_importar():
                 filetypes=(("All files", "*.*"), ("Text files", "*.txt"), ("Image files", "*.png;*.jpg"))
             )
         if origin:
-            #Copiar fitxer
-            destination = os.getcwd()
-            shutil.copy(origin, destination)
-            print(f"File imported: {origin}")
-        else:
-            raise Exception("No file selected")
+            filename = os.path.basename(origin)
+            vault_dir = os.path.join("data", "vaults", current_username)
+            os.makedirs(vault_dir, exist_ok=True)
+    
+            destination = os.path.join(vault_dir, filename + ".enc")
+
+            exito, mensaje = secure.encrypt_file(origin, session_password, destination)
+            if exito == True:
+                print(f"File imported: {origin}")
+            else:
+                raise Exception(mensaje)
     except Exception as e:
         print(f"[ERROR]: {e}")
       

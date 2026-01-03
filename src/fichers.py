@@ -66,15 +66,15 @@ def write_usersjson(data):
 # Validar ruta de fitxer
 def validate_file(path):
     if not path:
-        raise ValueError("La ruta està buida.") 
+        return False, f"La ruta està buida." 
 
     if not os.path.exists(path):
-        raise FileNotFoundError(f"No s'ha trobat el fitxer: {path}") 
+        return False, f"No s'ha trobat el fitxer: {path}" 
     
     if not os.path.isfile(path):
-        raise IsADirectoryError(f"La ruta és una carpeta, no un fitxer: {path}") 
+        return False, f"La ruta és una carpeta, no un fitxer: {path}" 
 
-    return True
+    return True, "[OK]"
 
 def write_content(path, data, binary):
     try:
@@ -93,12 +93,12 @@ def write_content(path, data, binary):
         with open(path, mode) as f:
             f.write(data)
         correcte = True
-        return correcte, f"Fitxer guardat: {path}"
+        return correcte, f"Fitxer guardat: {path} [OK]"
 
     except Exception as e:
         print("[ERROR] Writing file: ", e)
         correcte = False
-        return correcte, f"Error escrivint {path}: {e}"
+        return correcte, f"Error escrivint {path}: {e} [ERROR]"
 
 def read_content(path, binary):
     valid, msg = validate_file(path)

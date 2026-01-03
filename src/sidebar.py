@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from src import importfile
-def create_sidebar(parent, color_sidebar):
+def create_sidebar(parent, color_sidebar, com_import):
     sidebar = ctk.CTkFrame(parent, width=200, corner_radius=0, fg_color=color_sidebar)
     sidebar.grid(row=0, column=0, sticky="nsew")
 

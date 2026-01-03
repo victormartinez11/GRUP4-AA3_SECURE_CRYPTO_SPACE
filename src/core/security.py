@@ -60,7 +60,7 @@ def encrypt_file(file_path, password, output=None):
         key = key_derivation(password, salt)
         # Generar un IV aleatori pero el fitxer
         iv = os.urandom(16)
-        with open(input_path, "rb") as f:
+        with open(file_path, "rb") as f:
             file_data = f.read()
 
         # Calcular el HASH abans de encriptar
@@ -79,7 +79,7 @@ def encrypt_file(file_path, password, output=None):
         final_content = salt + iv + original_hash + encrypted_data
         
         binary=True
-        fildata=fil.write_content(output_path, final_content, binary)
+        fildata=fil.write_content(output, final_content, binary)
         if not fildata:
             return False, "Error crític durant el xifratge"
         return True, fildata

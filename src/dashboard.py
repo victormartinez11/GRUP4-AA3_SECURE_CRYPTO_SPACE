@@ -4,7 +4,7 @@ from PIL import Image
 from src.sidebar import create_sidebar
 from src.file_encript import encrypt_file, decrypt_file
 import datetime
-
+from src import importfile
 # COLORS
 COLOR_BG = "#0f111a"
 COLOR_SIDEBAR = "#161925"
@@ -20,7 +20,7 @@ try:
 except Exception as e:
     print(f"Error loading images: {e}")
 
-def dashboard(app, current_user):
+def dashboard(app, current_user, session_password):
 
     app_state = [False]
     # Grid conf
@@ -28,8 +28,12 @@ def dashboard(app, current_user):
     app.grid_rowconfigure(0, weight=1)
 
     # Sidebar
-    create_sidebar(app, COLOR_SIDEBAR)
-
+    def import_func():
+        import_yes = importfile.accio_importar(session_password, current_user)
+        if import_yes:
+            llistar_directori()
+    create_sidebar(app, COLOR_SIDEBAR, com_import=import_func)
+        
     # Main 
     area_principal = ctk.CTkFrame(app, fg_color=COLOR_BG, corner_radius=0)
     area_principal.grid(row=0, column=1, sticky="nsew")
