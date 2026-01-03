@@ -9,7 +9,6 @@ def user_exists(username):
             exists = True
     return exists
 
-
 def register_validation(username, password):
     validation = False
     if not username or not password:
