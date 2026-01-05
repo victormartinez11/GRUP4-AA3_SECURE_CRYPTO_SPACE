@@ -28,11 +28,22 @@ def dashboard(app, current_user, session_password):
     app.grid_rowconfigure(0, weight=1)
 
     # Sidebar
+    ruta_vault = os.path.join("data", "vaults", current_user)
+    os.makedirs(ruta_vault, exist_ok=True)
+    current_path_state = [ruta_vault]
+
+    # Sidebar
     def import_func():
         import_yes = importfile.accio_importar(session_password, current_user)
         if import_yes:
             llistar_directori()
-    create_sidebar(app, COLOR_SIDEBAR, import_command=import_func)
+
+    def navigate_to(path):
+        current_path_state[0] = path
+        cami_directori.configure(text=f" {path}")
+        llistar_directori()
+
+    create_sidebar(app, COLOR_SIDEBAR, current_user, import_command=import_func, navigate_callback=navigate_to)
         
     # Main 
     area_principal = ctk.CTkFrame(app, fg_color=COLOR_BG, corner_radius=0)
@@ -46,7 +57,7 @@ def dashboard(app, current_user, session_password):
     ruta_static = ctk.CTkLabel(path_container, text="Ruta:", text_color="#5c55e6", font=("Consolas", 14, "bold"))
     ruta_static.pack(side="left")
      
-    ruta_actual = f" {os.getcwd()}"
+    ruta_actual = f" {ruta_vault}"
     cami_directori = ctk.CTkLabel(path_container, text=ruta_actual, text_color="#a0a0a0", font=("Consolas", 14))
     cami_directori.pack(side="left")
     ########################
@@ -63,8 +74,8 @@ def dashboard(app, current_user, session_password):
     files_grid.pack(fill="both", expand=True, padx=20, pady=10)
 
     def sel_element(name):
-        ruta_absoluta = os.getcwd()
-        full_path = os.path.join(ruta_absoluta, name)
+        ruta_directori = current_path_state[0]
+        full_path = os.path.join(ruta_directori, name)
         app_state[0] = full_path
         
         label_arxiu_seleccionat.configure(text=f"Seleccionado: {name}", text_color="white")
@@ -137,10 +148,13 @@ def dashboard(app, current_user, session_password):
         for widget in files_grid.winfo_children():
             widget.destroy()
         #Llista de fitxers
-        ruta_vault = os.path.join("data", "vaults", current_user)
-        os.makedirs(ruta_vault, exist_ok=True)
+        #Llista de fitxers
+        ruta_directori = current_path_state[0]
         try:
-            items = os.listdir(ruta_vault)
+            items = os.listdir(ruta_directori)
+        except Exception as e:
+            items = []
+            print(f"Error: {e}")
             # ruta_absoluta = os.getcwd()
             # items = os.listdir(ruta_absoluta) 
         except Exception as e:
@@ -183,7 +197,7 @@ def dashboard(app, current_user, session_password):
                 print(f"Ignorando archivo oculto: {name}")
                 continue 
             #full_path = os.path.join(ruta_absoluta, name)
-            full_path = os.path.join(ruta_vault, name)
+            full_path = os.path.join(ruta_directori, name)
             
             try:
                 stats = os.stat(full_path)

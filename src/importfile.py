@@ -22,6 +22,7 @@ def accio_importar(session_password, current_username):
             exito, mensaje = secure.encrypt_file(origin, session_password, destination)
             if exito == True:
                 print(f"File imported: {origin}")
+                return True
             else:
                 raise Exception(mensaje)
     except Exception as e:
