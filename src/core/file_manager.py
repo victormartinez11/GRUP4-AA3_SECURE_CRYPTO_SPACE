@@ -188,3 +188,25 @@ def secure_delete(path):
 
     except Exception as e:
         return False, f"Error eliminant: {e}"
+
+# Funcio per guardar la configuracio (ruta del vault)
+def save_config(path):
+    try:
+        with open(const.CONFIG_FILE, "w") as f:
+            f.write(path)
+        return True, "Configuració guardada."
+    except Exception as e:
+        print(f"[ERROR] Guardant configuració: {e}")
+        return False, f"Error guardant configuració: {e}"
+
+# Funcio per carregar l'ultim vault utilitzat
+def load_last_vault():
+    try:
+        if os.path.exists(const.CONFIG_FILE):
+            with open(const.CONFIG_FILE, "r") as f:
+                path = f.read().strip()
+                if os.path.isdir(path):
+                    return path
+    except Exception as e:
+        print(f"[ERROR] Carregant configuració: {e}")
+    return None

@@ -260,7 +260,7 @@ def dashboard(app, current_user, session_password):
     )
     botons_xifrar.pack(side="right", padx=0, pady=10)
 
-    # Botó Esborrar (Nou)
+    # Botó Esborrar 
     botons_esborrar = ctk.CTkButton(
         action_bar, 
         text="ELIMINAR", 
