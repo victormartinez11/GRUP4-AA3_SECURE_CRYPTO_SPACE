@@ -8,7 +8,7 @@ import src.logic.importer as importer
 import src.core.file_manager as fm
 import src.config.constants as const
 from functools import partial
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 
 try:
     IMG_FOLDER = ctk.CTkImage(light_image=Image.open("assets/folder.png"), dark_image=Image.open("assets/folder.png"), size=(50, 50))
@@ -155,7 +155,9 @@ def dashboard(app, current_user, session_password):
         refresh_views() 
 
     def import_func():
-        if importer.accio_importar(session_password, current_user):
+        # Passem la ruta actual del navegador com a carpeta de desti
+        current_dir = current_path_state[0]
+        if importer.accio_importar(session_password, current_user, destination_folder=current_dir):
             refresh_views()
     
     def handle_encrypt_click():
@@ -201,22 +203,40 @@ def dashboard(app, current_user, session_password):
             else:
                 label.configure(text=f"Error: {msg}", text_color=const.COLOR_RED)
 
-    def execute_decrypt(label, encrypt_btn, decrypt_btn):
-        target = app_state["selected_file"]
-        if not target: return
-
-        dialog = ctk.CTkInputDialog(text="Introduce la contraseña para desencriptar:", title="Desencriptar")
-        passwd = dialog.get_input()
+    # Funcio per exportar arxiu desencriptat a una ruta especifica
+    def accio_exportar():
+        objectiu = app_state["selected_file"]
         
-        if passwd:
-            success, msg = decrypt_file(target, passwd)
-            if success:
-                refresh_views()
-                label.configure(text="S'ha desencriptat l'arxiu", text_color=const.COLOR_GREEN)
-                encrypt_btn.configure(state="disabled")
-                decrypt_btn.configure(state="disabled")
+        # Verificacio inicial: ha de ser un fitxer .enc
+        if not objectiu or not objectiu.endswith(".enc"):
+            messagebox.showwarning("Avís", "Selecciona un arxiu encriptat (.enc) per exportar.")
+            return
+
+        # Nom per defecte sense la extensio .enc
+        nom_inicial = os.path.basename(objectiu).replace(".enc", "")
+
+        # Demanar ruta de desti
+        ruta_desti = filedialog.asksaveasfilename(
+            title="Exportar arxiu desencriptat",
+            initialfile=nom_inicial,
+            defaultextension=".*"
+        )
+        
+        if not ruta_desti:
+            return
+
+        # Demanar contrasenya
+        dialeg = ctk.CTkInputDialog(text="Introdueix la contrasenya per desencriptar:", title="Seguretat")
+        password = dialeg.get_input()
+
+        if password:
+            # Cridem a security.decrypt_file amb output_path
+            exito, missatge = decrypt_file(objectiu, password, output_path=ruta_desti)
+            
+            if exito:
+                messagebox.showinfo("Exportat", f"Arxiu exportat correctament a:\n{ruta_desti}")
             else:
-                label.configure(text=f"Error: {msg}", text_color=const.COLOR_RED)
+                messagebox.showerror("Error", f"No s'ha pogut exportar: {missatge}")
 
     create_sidebar(app, current_user, import_command=import_func, navigate_callback=navigate_to)
         
@@ -238,13 +258,13 @@ def dashboard(app, current_user, session_password):
 
     botons_desxifrar = ctk.CTkButton(
         action_bar, 
-        text="DESENCRIPTAR", 
-        fg_color=const.COLOR_BTN_DECRYPT, 
-        hover_color=const.COLOR_BTN_DECRYPT_HOVER,
+        text="EXPORTAR", 
+        fg_color="#e67e22", # Color Taronja
+        hover_color="#d35400",
         state="disabled", 
-        text_color="gray",
+        text_color="white",
         width=120, 
-        command=handle_decrypt_click 
+        command=accio_exportar 
     )
     botons_desxifrar.pack(side="right", padx=(10, 20), pady=10)
 
