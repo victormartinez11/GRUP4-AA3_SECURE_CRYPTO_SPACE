@@ -1,14 +1,13 @@
-import shutil #Copiar fitxer
-from customtkinter import filedialog # Selector de fitxer 
+import shutil 
+from customtkinter import filedialog 
 import os
 import src.core.security as secure
+import src.config.constants as const
 
-
-#Funcio per importar fitxer
+# Funció per importar fitxer
 def accio_importar(session_password, current_username):
     try:
-        #Obrir explorador de fitxers
-        origin= filedialog.askopenfilename(
+        origin = filedialog.askopenfilename(
                 title="Import to vault",
                 filetypes=(("All files", "*.*"), ("Text files", "*.txt"), ("Image files", "*.png;*.jpg"))
             )
@@ -20,12 +19,12 @@ def accio_importar(session_password, current_username):
             destination = os.path.join(vault_dir, filename + ".enc")
 
             exito, mensaje = secure.encrypt_file(origin, session_password, destination)
-            if exito == True:
+            if exito:
                 print(f"File imported: {origin}")
                 return True
             else:
-                raise Exception(mensaje)
+                print(f"[ERROR IMPORTING]: {mensaje}")
+                return False
     except Exception as e:
         print(f"[ERROR]: {e}")
-      
-
+        return False
