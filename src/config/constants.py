@@ -58,3 +58,6 @@ FONT_PATH_BOLD = ("Consolas", 14, "bold")
 
 # Dimensions
 SIDEBAR_WIDTH = 250
+
+# Configuracio del sistema
+CONFIG_FILE = "last_vault.txt"

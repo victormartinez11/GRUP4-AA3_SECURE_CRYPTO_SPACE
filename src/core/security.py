@@ -43,7 +43,7 @@ def calculate_file_hash(file_path):
     except Exception as e:
         print(f"[Error]: {e}")
         return None
-
+# Calcula el hash d'un fitxer
 def calculate_hash(data):
     hashcalc=hashlib.sha256(data).digest()
     return hashcalc
