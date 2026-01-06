@@ -173,23 +173,20 @@ def secure_delete(path):
     try:
         if os.path.isfile(path):
             length = os.path.getsize(path)
-            
+            #SOBREESCRITURA DE DADES ALEATORIES 
             with open(path, "wb") as f:
                 f.write(os.urandom(length))
-                
+            #ELIMINAR EL FITXER   
             os.remove(path)
             return True, "Arxiu eliminat de forma segura (Wiped)."
-            
         elif os.path.isdir(path):
             shutil.rmtree(path)
             return True, "Carpeta eliminada correctament."
-            
         return False, "L'arxiu no existeix."
-
     except Exception as e:
         return False, f"Error eliminant: {e}"
 
-# Funcio per guardar la configuracio (ruta del vault)
+# Funcio per guardar la configuracio 
 def save_config(path):
     try:
         with open(const.CONFIG_FILE, "w") as f:
