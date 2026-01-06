@@ -90,9 +90,8 @@ def encrypt_file(file_path, password, output=None):
         return False, f"Error crític durant el xifratge: {e}"
 
 
-
-def decrypt_file(file_path, password):
-    binary=True
+def decrypt_file(file_path, password, output_path=None):
+    binary = True
     success, contingut = fil.read_content(file_path, binary)
 
     if not success:
@@ -121,20 +120,29 @@ def decrypt_file(file_path, password):
         if hash_calculat != hash_guardat:
             return False, "[ALERTA]: Hash incorrecte. El fitxer podria estar corrupte o manipulat."
 
-        if file_path.endswith(".enc"):
-            ruta_sortida = file_path[:-4]
+        eliminar_original = False
+        
+        if output_path:
+            ruta_sortida = output_path
+            eliminar_original = False 
         else:
-            ruta_sortida = file_path + ".decrypted"
+            if file_path.endswith(".enc"):
+                ruta_sortida = file_path[:-4]
+            else:
+                ruta_sortida = file_path + ".decrypted"
+            eliminar_original = True
 
         success, msg = fil.write_content(ruta_sortida, dades_originals, binary=True)
         
         if success:     
-            try:
-                os.remove(file_path)
-            except OSError:
-                pass 
+            # Només esborrem l'arxiu .enc si NO estem exportant
+            if eliminar_original:
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass 
             
-            return True, f"Arxiu recuperat: {os.path.basename(ruta_sortida)}"
+            return True, f"Arxiu guardat a: {os.path.basename(ruta_sortida)}"
         else:
             return False, msg
 
