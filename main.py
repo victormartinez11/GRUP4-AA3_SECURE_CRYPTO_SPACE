@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import src.ui.login as login_ui
 from src.core.file_manager import create_directory
-
+#MENU
 def main():
     create_directory("data/vaults")
 

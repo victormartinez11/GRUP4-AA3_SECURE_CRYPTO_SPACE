@@ -23,6 +23,8 @@ def dashboard(app, current_user, session_password):
     
     app_state = {"selected_file": None}
     
+    search_var = ctk.StringVar()
+
     app.grid_columnconfigure(1, weight=1)
     app.grid_rowconfigure(0, weight=1)
 
@@ -60,6 +62,10 @@ def dashboard(app, current_user, session_password):
             widget.destroy()
         
         items = fm.list_directory(path)
+
+        text_cerca = search_var.get().lower()
+        if text_cerca:
+            items = [f for f in items if text_cerca in f.lower()]
 
         container_frame.grid_columnconfigure(0, weight=0, minsize=40) 
         container_frame.grid_columnconfigure(1, weight=2, minsize=70) 
@@ -149,9 +155,15 @@ def dashboard(app, current_user, session_password):
     def refresh_views():
         update_listing_view(files_grid, current_path_state[0], label_arxiu_seleccionat, botons_xifrar, botons_desxifrar, botons_esborrar)
 
+
+    def on_search_change(*args):
+        refresh_views()
+    search_var.trace("w", on_search_change)
+
     def navigate_to(path):
         current_path_state[0] = path
         cami_directori.configure(text=f" {path}")
+        search_var.set("") # Netejar cerca en canviar de carpeta
         refresh_views() 
 
     def import_func():
@@ -249,6 +261,17 @@ def dashboard(app, current_user, session_password):
     ctk.CTkLabel(path_container, text="Ruta:", text_color=const.COLOR_ACCENT, font=const.FONT_PATH_BOLD).pack(side="left")
     cami_directori = ctk.CTkLabel(path_container, text=f" {ruta_vault}", text_color=const.COLOR_TEXT_SECONDARY, font=const.FONT_PATH)
     cami_directori.pack(side="left")
+
+   # barra per poder filtrar els fitxers per noms
+    search_entry = ctk.CTkEntry(
+        path_container, 
+        placeholder_text="Buscar fitxer...", 
+        textvariable=search_var, 
+        width=200,
+        fg_color="#212533",
+        text_color="white",
+        border_color=const.COLOR_ACCENT)
+    search_entry.pack(side="right", padx=10)
 
     action_bar = ctk.CTkFrame(area_principal, fg_color=const.COLOR_SIDEBAR, corner_radius=15, height=50)
     action_bar.pack(fill="x", padx=20, pady=10)
