@@ -57,7 +57,7 @@ def dashboard(app, current_user, session_password):
             select_file_action(name, path, label, btn_enc, btn_dec, btn_del)
         return callback
 
-    def update_listing_view(container_frame, path, status_label, btn_encrypt, btn_decrypt, btn_delete):
+    def update_listing_view(container_frame, path, status_label, btn_encrypt, btn_decrypt, btn_delete, navigate_callback=None):
         for widget in container_frame.winfo_children():
             widget.destroy()
         
@@ -127,7 +127,8 @@ def dashboard(app, current_user, session_password):
             
             pady_row = 2
 
-            ctk.CTkLabel(container_frame, text=txt_icon, image=img, width=30, anchor="center").grid(row=row, column=0, sticky="ew", padx=5, pady=pady_row)
+            icon_label = ctk.CTkLabel(container_frame, text=txt_icon, image=img, width=30, anchor="center")
+            icon_label.grid(row=row, column=0, sticky="ew", padx=5, pady=pady_row)
             
             cmd = create_row_callback(name, path, status_label, btn_encrypt, btn_decrypt, btn_delete)
             
@@ -144,6 +145,16 @@ def dashboard(app, current_user, session_password):
             )
             btn_name.grid(row=row, column=1, sticky="ew", padx=5, pady=pady_row)
             
+            # --- Lògica Doble Clic (GRUP4-59) ---
+            if es_carpeta and navigate_callback:
+                def on_double_click(event, p=full_path):
+                    if os.path.isdir(p):
+                        navigate_callback(p)
+                
+                # Vinculem doble clic esquerre al botó i a la icona
+                btn_name.bind("<Double-Button-1>", on_double_click)
+                icon_label.bind("<Double-Button-1>", on_double_click)
+            
             ctk.CTkLabel(container_frame, text=date_str, font=const.FONT_NORMAL, text_color=const.COLOR_TEXT_DIM, anchor="w").grid(row=row, column=2, sticky="ew", padx=5, pady=pady_row)
             
             ctk.CTkLabel(container_frame, text=size_str, font=const.FONT_NORMAL, text_color=const.COLOR_TEXT_DIM, anchor="e").grid(row=row, column=3, sticky="ew", padx=5, pady=pady_row)
@@ -153,7 +164,7 @@ def dashboard(app, current_user, session_password):
             row += 1
 
     def refresh_views():
-        update_listing_view(files_grid, current_path_state[0], label_arxiu_seleccionat, botons_xifrar, botons_desxifrar, botons_esborrar)
+        update_listing_view(files_grid, current_path_state[0], label_arxiu_seleccionat, botons_xifrar, botons_desxifrar, botons_esborrar, navigate_to)
 
 
     def on_search_change(*args):
