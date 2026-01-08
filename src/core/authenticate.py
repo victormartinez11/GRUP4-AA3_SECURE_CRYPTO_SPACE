@@ -1,6 +1,7 @@
 import src.config.constants as const
 import src.core.file_manager as fichers
 import src.core.security as secure
+from finestres_errors import *
 
 def user_exists(username):
     exists = False
@@ -40,10 +41,10 @@ def register_user(username, password):
         return True, "Usuari registrat correctament."
 
     except ValueError as ve:
-        return False, str(ve)
+        return False, value_error(ve)
         
-    except Exception as e:
-        return False, f"Error crític del sistema: {e}"
+    except Exception:
+        return False, error_critic_sistema()
 
 def login_user(username, password):
     try:
@@ -58,20 +59,20 @@ def login_user(username, password):
                 user_data = user
         
         if not user_data:
-            return False, "Usuari o contrasenya incorrectes." 
+            return False, value_error() 
             
         try:
             salt = bytes.fromhex(user_data["Salt"])
             stored_hash = bytes.fromhex(user_data["Hash"])
         except ValueError:
-             return False, "Error en el formato de datos del usuario."
+             return False, value_error()
 
         derived_key = secure.key_derivation(password, salt)
         
         if derived_key == stored_hash:
             return True, "Login correcte."
         else:
-             return False, "Usuari o contrasenya incorrectes."
+             return False, error_login()
 
-    except Exception as e:
-        return False, f"Error en login: {e}"
+    except Exception:
+        return False, error_login()

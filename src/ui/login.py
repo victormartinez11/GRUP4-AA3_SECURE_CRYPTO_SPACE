@@ -5,6 +5,7 @@ import src.config.constants as const
 import src.core.file_manager as fm
 import os
 from tkinter import filedialog
+from finestres_errors import *
 
 def setup_login_ui(app):
     app.title("Secure Vault Login")
@@ -77,7 +78,7 @@ def setup_login_ui(app):
             else:
                 login_status.configure(text=mensaje, text_color="red")
         except Exception as e:
-            login_status.configure(text=f"Error: {e}", text_color="red")
+            error_sistema(e)
 
     def handle_register_click():
         usuari = new_user.get()

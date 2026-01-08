@@ -3,6 +3,7 @@ from tkinter import ttk
 import os
 import src.core.file_manager as fm 
 import src.config.constants as const
+from finestres_errors import error_sistema
 
 def create_sidebar(parent, current_user, import_command, navigate_callback=None):
 
@@ -50,7 +51,7 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
                     nou_node = tree.insert(node, "end", text=text_visual, values=[ruta_completa])
                     tree.insert(nou_node, "end", text="dummy")
         except Exception as e:
-            print(f"Error llegint arbre: {e}")
+            error_sistema(f"Error llegint arbre: {e}")
 
     def al_expandir(event):
         item = tree.focus()

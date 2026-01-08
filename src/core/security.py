@@ -5,6 +5,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 import src.config.constants as const
 import src.core.file_manager as fil
+from finestres_errors import *
 
 # Genera una salt aleatoria de 16 bytes
 def generate_salt():
@@ -38,10 +39,10 @@ def calculate_file_hash(file_path):
                 chunk = f.read(const.CHUNK_SIZE)
         return sha256_hash.digest()
     except FileNotFoundError:
-        print(f"[Error]: No es troba el fitxer {file_path}")
+        error_archivo_no_encontrado(file_path)
         return None
     except Exception as e:
-        print(f"[Error]: {e}")
+        error_sistema(e)
         return None
 # Calcula el hash d'un fitxer
 def calculate_hash(data):
@@ -87,7 +88,7 @@ def encrypt_file(file_path, password, output=None):
         return True, "Fitxer encriptat correctament"
 
     except Exception as e:
-        return False, f"Error crític durant el xifratge: {e}"
+        return False, error_critic_sistema(e)
 
 
 
@@ -132,6 +133,7 @@ def decrypt_file(file_path, password):
             try:
                 os.remove(file_path)
             except OSError:
+                error_os
                 pass 
             
             return True, f"Arxiu recuperat: {os.path.basename(ruta_sortida)}"
@@ -139,9 +141,9 @@ def decrypt_file(file_path, password):
             return False, msg
 
     except ValueError:
-        return False, "Contrasenya incorrecta o dades corruptes (padding error)."
+        return False, value_error()
     except Exception as e:
-        return False, f"Error desencriptant: {e}"
+        return False, error_sistema(e)
 
 # Encriptar carpetes
 def encrypt_folder(folder_path, password):

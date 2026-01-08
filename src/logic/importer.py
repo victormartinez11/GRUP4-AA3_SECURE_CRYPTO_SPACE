@@ -3,6 +3,7 @@ from customtkinter import filedialog
 import os
 import src.core.security as secure
 import src.config.constants as const
+from finestres_errors import *
 
 # Funció per importar fitxer
 def accio_importar(session_password, current_username):
@@ -26,5 +27,5 @@ def accio_importar(session_password, current_username):
                 print(f"[ERROR IMPORTING]: {mensaje}")
                 return False
     except Exception as e:
-        print(f"[ERROR]: {e}")
+        error_sistema(e)
         return False
