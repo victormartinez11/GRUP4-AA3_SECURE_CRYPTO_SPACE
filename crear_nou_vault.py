@@ -4,6 +4,7 @@
 import os
 import hashlib
 import shutil
+from finestres_error import *
 
 carpeta_base = "storage"
 VAULT = os.path.join(carpeta_base, "Vault") #carpeta donde se guardaran los archivos
@@ -56,6 +57,6 @@ def importar_archivo(file_path, password):
         print("Se ha borrado el archivo en su ubicación anterior")
 
     except PermissionError:
-        print("Error: No tenemos permisos para modificar el archivo")
+        error_permisos()
     except OSError:
-        print("Error del sistema.")
+        error_os()
