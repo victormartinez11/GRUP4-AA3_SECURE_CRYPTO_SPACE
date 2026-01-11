@@ -1,32 +1,38 @@
 import os
 import hashlib
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+# El mòdul cryptography es fa servir per encriptar i desencriptar de forma segura
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 import src.config.constants as const
 import src.core.file_manager as fil
 
-# Genera una salt aleatoria de 16 bytes
+# Aquesta funció genera una "salt" aleatòria de 16 bytes per fer més segura la clau
+# Fa servir el mòdul os
 def generate_salt():
-    salt=os.urandom(16)
+    salt = os.urandom(16)
     return salt
 
-# Genera una key a partir de una password y una salt
+# Aquesta funció crea una clau segura barrejant la contrasenya i la salt
+# Fa servir el mòdul hashlib i crida funcions de text
 def key_derivation(password, salt):
     if not password or not salt:
-        raise ValueError("Password i salt no poden ser buits")
+        raise ValueError("La contrasenya i la salt no poden ser buides")
     
     if len(salt) != const.SALT_SIZE:
-        raise ValueError(f"Salt ha de tenir una longitud de {const.SALT_SIZE}")
+        raise ValueError(f"La salt ha de tenir una longitud de {const.SALT_SIZE}")
     
     if isinstance(password, str):
         password = password.encode("utf-8") 
         
+    # Creem la clau fent moltes iteracions perquè sigui difícil d'endevinar
     key = hashlib.pbkdf2_hmac("sha256", password, salt, const.ITERATIONS, const.KEY_SIZE)      
     if len(key) != const.KEY_SIZE:
-        raise ValueError(f"Key ha de tenir una longitud de {const.KEY_SIZE}")
+        raise ValueError(f"La clau ha de tenir una longitud de {const.KEY_SIZE}")
     return key
 
+# Aquesta funció calcula el hash d'un fitxer per saber si l'han modificat
+# Fa servir el mòdul hashlib
 def calculate_file_hash(file_path):
     try:
         sha256_hash = hashlib.sha256()
@@ -43,12 +49,15 @@ def calculate_file_hash(file_path):
     except Exception as e:
         print(f"[Error]: {e}")
         return None
-# Calcula el hash d'un fitxer
+
+# Aquesta funció calcula el hash d'unes dades que tenim en memòria
+# Fa servir el mòdul hashlib
 def calculate_hash(data):
-    hashcalc=hashlib.sha256(data).digest()
+    hashcalc = hashlib.sha256(data).digest()
     return hashcalc
 
-# Encripta i desencripta un fitxer
+# Aquesta funció agafa un fitxer, l'encripta amb una contrasenya i el guarda
+# Crida les funcions de generar salt, derivar clau i calcular hash finalment borra el fitxer original 
 def encrypt_file(file_path, password, output=None):
     validate, missatge = fil.validate_file(file_path)
     if not validate:
@@ -60,7 +69,7 @@ def encrypt_file(file_path, password, output=None):
     try:
         salt = generate_salt()
         key = key_derivation(password, salt)
-        iv = os.urandom(16)
+        iv = os.urandom(16) # Un codi aleatori que necessita l'algoritme de xifrat
         
         success, file_data = fil.read_content(file_path, binary=True)
         if not success:
@@ -68,8 +77,9 @@ def encrypt_file(file_path, password, output=None):
 
         original_hash = calculate_file_hash(file_path)
         if original_hash is None:
-             return False, "Error calculant hash"
+             return False, "Error calculant el hash del fitxer"
 
+        # Afegim farcit (padding) perquè les dades tinguin la mida correcta
         padder = padding.PKCS7(128).padder()
         padded_data = padder.update(file_data) + padder.finalize()
 
@@ -77,9 +87,10 @@ def encrypt_file(file_path, password, output=None):
         encryptor = cipher.encryptor()
         encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
 
+        # Guardem tot junt: Salt + IV + Hash + Dades Encriptades
         final_content = salt + iv + original_hash + encrypted_data
         
-        binary=True
+        binary = True
         success, msg = fil.write_content(output, final_content, binary)
         if not success:
             return False, msg
@@ -89,7 +100,8 @@ def encrypt_file(file_path, password, output=None):
     except Exception as e:
         return False, f"Error crític durant el xifratge: {e}"
 
-
+# Aquesta funció agafa un fitxer encriptat i el restaura si la contrasenya és bona
+# Comprova que el hash sigui correcte per seguretat i finalment borra el fitxer encriptat
 def decrypt_file(file_path, password, output_path=None):
     binary = True
     success, contingut = fil.read_content(file_path, binary)
@@ -99,8 +111,9 @@ def decrypt_file(file_path, password, output_path=None):
 
     try:
         if len(contingut) < 64: 
-             return False, "Arxiu corrupte o massa curt."
+             return False, "L'arxiu està corrupte o és massa curt."
         
+        # Separem les parts del fitxer
         salt = contingut[:16]
         iv = contingut[16:32]
         hash_guardat = contingut[32:64]
@@ -112,13 +125,14 @@ def decrypt_file(file_path, password, output_path=None):
         
         padded_data = decryptor.update(dades_encriptades) + decryptor.finalize()
 
+        # Traiem el farcit que havíem posat
         unpadder = padding.PKCS7(128).unpadder()
         dades_originals = unpadder.update(padded_data) + unpadder.finalize()
 
         hash_calculat = calculate_hash(dades_originals)
 
         if hash_calculat != hash_guardat:
-            return False, "[ALERTA]: Hash incorrecte. El fitxer podria estar corrupte o manipulat."
+            return False, "[ALERTA]: El fitxer ha estat modificat o està malament."
 
         eliminar_original = False
         
@@ -135,7 +149,6 @@ def decrypt_file(file_path, password, output_path=None):
         success, msg = fil.write_content(ruta_sortida, dades_originals, binary=True)
         
         if success:     
-            # Només esborrem l'arxiu .enc si NO estem exportant
             if eliminar_original:
                 try:
                     os.remove(file_path)
@@ -147,53 +160,6 @@ def decrypt_file(file_path, password, output_path=None):
             return False, msg
 
     except ValueError:
-        return False, "Contrasenya incorrecta o dades corruptes (padding error)."
+        return False, "La contrasenya no és correcta o el fitxer està trencat."
     except Exception as e:
         return False, f"Error desencriptant: {e}"
-
-# Encriptar carpetes
-def encrypt_folder(folder_path, password):
-    print(f"Procesando carpeta: {folder_path}...")
-    archivos_procesados = 0
-    errores = 0
-    
-    for root, dirs, files in os.walk(folder_path):
-        for file_name in files:
-            file_name = file_name.strip('"')
-            partes = file_name.split('.')
-            if partes[-1] == "enc" or partes[-1] == "key":
-                continue
-            full_path = os.path.join(root, file_name)
-            
-            exito, mensaje = encrypt_file(full_path, password)
-            if exito:
-                archivos_procesados += 1
-                try:
-                    os.remove(full_path)
-                except:
-                    pass
-            else:
-                errores += 1
-                print(f"Error en {file_name}: {mensaje}")
-
-    return f"Proceso terminado. Encriptados: {archivos_procesados}. Errores: {errores}"
-
-# Desencriptar carpetes
-def decrypt_folder(folder_path, password):
-    archivos_procesados = 0
-    errores = 0
-    for root, dirs, files in os.walk(folder_path):
-        for file_name in files:
-            file_name = file_name.strip('"')
-            if not file_name.endswith(".enc"):
-                continue
-            else:
-                full_path = os.path.join(root, file_name)
-                exito, mensaje = decrypt_file(full_path, password)
-                if exito:
-                    archivos_procesados += 1
-                else:
-                    errores += 1
-                    print(f"Error en {file_name}: {mensaje}")
-
-    return f"Proceso terminado. Restaurados: {archivos_procesados}. Errores: {errores}"

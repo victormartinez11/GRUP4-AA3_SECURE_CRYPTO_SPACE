@@ -40,10 +40,11 @@ def accio_importar(session_password, current_username, destination_folder=None):
         return False
 
 
-def accio_exportar(ruta_seleccionada):
+def accio_exportar(ruta_seleccionada, session_password):
     # Validar que hem rebut una ruta i que es un fitxer encriptat
     if not ruta_seleccionada or not ruta_seleccionada.endswith(".enc"):
-        return
+        messagebox.showwarning("Avís", "Selecciona un arxiu encriptat (.enc) per exportar.")
+        return False
 
     # Nom per defecte eliminant l'extensio .enc
     default_name = os.path.basename(ruta_seleccionada).replace(".enc", "")
@@ -56,21 +57,19 @@ def accio_exportar(ruta_seleccionada):
     )
 
     if not ruta_desti:
-        return
-    # Demanar contrasenya per desencriptar
-    dialog = ctk.CTkInputDialog(text="Introdueix la contrasenya:", title="Seguretat")
-    password = dialog.get_input()
+        return False
 
-    if password:
-        exito, msg = secure.decrypt_file(ruta_seleccionada, password)
+    # Ja no demanem contrasenya, usem la de la sessió
+    if session_password:
+        # Cridem a security.decrypt_file amb output_path
+        exito, msg = secure.decrypt_file(ruta_seleccionada, session_password, output_path=ruta_desti)
 
         if exito:
-            # El movem a la ruta de desti seleccionada per l'usuari
-            decrypted_temp = ruta_seleccionada.replace(".enc", "")
-            try:
-                shutil.move(decrypted_temp, ruta_desti)
-                messagebox.showinfo("Exportació Exitosa", f"Arxiu guardat a:\n{ruta_desti}")
-            except Exception as e:
-                messagebox.showerror("Error", f"Error movent el fitxer: {e}")
+            # Si s'ha exportat bé, eliminem l'original de forma segura
+            fm.secure_delete(ruta_seleccionada)
+            messagebox.showinfo("Exportació Exitosa", f"Arxiu exportat i esborrat del vault:\n{ruta_desti}")
+            return True
         else:
             messagebox.showerror("Error", msg)
+            return False
+    return False
