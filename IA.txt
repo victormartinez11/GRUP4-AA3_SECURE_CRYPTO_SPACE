@@ -1,0 +1,10 @@
+Ús d'Intel·ligència Artificial en el Projecte:
+
+1. Agilització del Desenvolupament UI:
+S'ha utilitzat IA per agilitzar la creació de botons i elements personalitzats que es repetien constantment a la interfície gràfica, optimitzant així el temps de desenvolupament.
+
+2. Millora de Documentació:
+La IA s'ha utilitzat per millorar la redacció i claredat de l'arxiu README.md.
+
+3. Lògica d'Importació:
+S'ha generat amb ajuda d'IA el codi per a la selecció de fitxers en les accions d'importar, específicament la configuració del diàleg d'arxius:
