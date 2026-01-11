@@ -41,10 +41,10 @@ def register_user(username, password):
         return True, "Usuari registrat correctament."
 
     except ValueError as ve:
-        return False, value_error(ve)
+        return False, str(ve), value_error(ve)
         
-    except Exception:
-        return False, error_critic_sistema()
+    except Exception as e:
+        return False, error_sistema(e)
 
 def login_user(username, password):
     try:

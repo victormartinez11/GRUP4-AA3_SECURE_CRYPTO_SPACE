@@ -78,7 +78,7 @@ def setup_login_ui(app):
             else:
                 login_status.configure(text=mensaje, text_color="red")
         except Exception as e:
-            error_sistema(e)
+            login_status.configure(text=f"Error: {e}", text_color="red")
 
     def handle_register_click():
         usuari = new_user.get()
