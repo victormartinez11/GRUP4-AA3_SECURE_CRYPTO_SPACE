@@ -6,19 +6,17 @@ from src.core.security import encrypt_file, decrypt_file
 import datetime
 import src.logic.importer as importer
 import src.core.file_manager as fm
-import src.config.constants as const
+import src.const.constants as const
 from functools import partial
 import src.ui.dashboard_actions as actions
-
+# Aquesta funció crea la pantalla del dashboard
 def dashboard(app, current_user, session_password):
-    
     app_state = {"selected_file": None}
-    
     search_var = ctk.StringVar()
 
     app.grid_columnconfigure(1, weight=1)
     app.grid_rowconfigure(0, weight=1)
-
+    #S'hagafa la ruta del vault del usuari actual i es crea si no existeix si l'usuario no selecciona un vault
     ruta_vault = os.path.join("data", "vaults", current_user)
     fm.create_directory(ruta_vault)
     current_path_state = [ruta_vault]
@@ -48,7 +46,7 @@ def dashboard(app, current_user, session_password):
         cami_directori.configure(text=f" {path}")
         search_var.set("") # Netejar cerca en canviar de carpeta
         refresh_views() 
-
+    # Funcions per pasar variables a les accions del boto (import, encriptar, desencriptar, esborrar) 
     # Aquesta funció importa un arxiu
     def import_func():
         actions.execute_import(current_path_state[0], session_password, current_user, refresh_views)
@@ -65,6 +63,7 @@ def dashboard(app, current_user, session_password):
     def accio_exportar():
         actions.execute_export(app_state, session_password, refresh_views, label_arxiu_seleccionat, botons_desxifrar, botons_esborrar)
 
+    # Creacio de la barra lateral
     create_sidebar(app, current_user, import_command=import_func, navigate_callback=navigate_to)
         
     area_principal = ctk.CTkFrame(app, fg_color=const.COLOR_BG, corner_radius=0)
@@ -93,7 +92,7 @@ def dashboard(app, current_user, session_password):
     
     label_arxiu_seleccionat = ctk.CTkLabel(action_bar, text="Ningún archivo seleccionado", text_color="gray", font=const.FONT_NORMAL)
     label_arxiu_seleccionat.pack(side="left", padx=20, pady=15)
-
+    #Boto Exportar
     botons_desxifrar = ctk.CTkButton(
         action_bar, 
         text="EXPORTAR", 
@@ -105,7 +104,7 @@ def dashboard(app, current_user, session_password):
         command=accio_exportar 
     )
     botons_desxifrar.pack(side="right", padx=(10, 20), pady=10)
-
+    #Boto Encriptar
     botons_xifrar = ctk.CTkButton(
         action_bar, 
         text="ENCRIPTAR", 

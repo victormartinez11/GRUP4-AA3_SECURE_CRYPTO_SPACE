@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 # El mòdul cryptography es fa servir per encriptar i desencriptar de forma segura
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
-import src.config.constants as const
+import src.const.constants as const
 import src.core.file_manager as fil
 
 # Aquesta funció genera una "salt" aleatòria de 16 bytes per fer més segura la clau
@@ -57,7 +57,7 @@ def calculate_hash(data):
     return hashcalc
 
 # Aquesta funció agafa un fitxer, l'encripta amb una contrasenya i el guarda
-# Crida les funcions de generar salt, derivar clau i calcular hash
+# Crida les funcions de generar salt, derivar clau i calcular hash finalment borra el fitxer original 
 def encrypt_file(file_path, password, output=None):
     validate, missatge = fil.validate_file(file_path)
     if not validate:
@@ -101,7 +101,7 @@ def encrypt_file(file_path, password, output=None):
         return False, f"Error crític durant el xifratge: {e}"
 
 # Aquesta funció agafa un fitxer encriptat i el restaura si la contrasenya és bona
-# Comprova que el hash sigui correcte per seguretat
+# Comprova que el hash sigui correcte per seguretat i finalment borra el fitxer encriptat
 def decrypt_file(file_path, password, output_path=None):
     binary = True
     success, contingut = fil.read_content(file_path, binary)

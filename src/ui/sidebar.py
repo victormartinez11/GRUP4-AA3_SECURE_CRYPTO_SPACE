@@ -2,7 +2,7 @@ import customtkinter as ctk
 from tkinter import ttk
 import os
 import src.core.file_manager as fm 
-import src.config.constants as const
+import src.const.constants as const
 
 def create_sidebar(parent, current_user, import_command, navigate_callback=None):
 
@@ -17,6 +17,7 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
 
     style = ttk.Style()
     style.theme_use("clam") 
+    #Arbre de carpetes 
     style.configure("Treeview",
                     background=const.COLOR_SIDEBAR,
                     foreground="#e0e0e0",
@@ -32,7 +33,7 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
     tree = ttk.Treeview(tree_frame, show="tree", selectmode="browse")
     tree.pack(fill="both", expand=True)
 
-    # Funció auxiliar per a la lògica de l'arbre
+    # Funció auxiliar per a la lògica de l'arbre que llegeix el contingut de la carpeta i la mostra en l'arbre
     def omplir_node(node, ruta):
         if tree.get_children(node):
             tree.delete(*tree.get_children(node))
@@ -52,12 +53,14 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
         except Exception as e:
             print(f"Error llegint arbre: {e}")
 
+    #Funció per a la lògica de l'arbre que s'executa quan s'expandeix un node
     def al_expandir(event):
         item = tree.focus()
         valors = tree.item(item, "values")
         if valors:
             omplir_node(item, valors[0])
 
+    #Funció per a la lògica de l'arbre que s'executa quan s'expandeix un node
     def al_seleccionar(event):
         seleccionat = tree.selection()
         if seleccionat:
@@ -78,6 +81,7 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
     root_node = tree.insert("", "end", text=f"  Vault: {current_user}", open=True, values=[ruta_vault])
     omplir_node(root_node, ruta_vault)
 
+    #Funció per a la lògica de la creació d'una nova carpeta
     def accio_nova_carpeta():
         seleccionat = tree.selection()
         
@@ -101,7 +105,7 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
                 tree.item(nodo_a_refrescar, open=True) 
             else:
                 print(msg)
-
+    #Botó per a la creació d'una nova carpeta
     btn_new_folder = ctk.CTkButton(
         sidebar, 
         text="+ Nova Carpeta", 
@@ -114,6 +118,7 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
     )
     btn_new_folder.grid(row=2, column=0, padx=10, pady=(10, 5))
 
+    #Botó per a la importació d'un arxiu
     import_button = ctk.CTkButton(
         sidebar, 
         text="IMPORTAR ARXIU", 
@@ -126,6 +131,7 @@ def create_sidebar(parent, current_user, import_command, navigate_callback=None)
     )
     import_button.grid(row=3, column=0, padx=10, pady=(5, 10))
 
+    #Botó per a la tancada de la sessió
     exit_button = ctk.CTkButton(
         sidebar, 
         text="Cerrar Vault", 

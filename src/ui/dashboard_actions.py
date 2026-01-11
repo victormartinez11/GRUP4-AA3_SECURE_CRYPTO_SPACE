@@ -4,7 +4,7 @@ from tkinter import messagebox, filedialog
 import src.core.file_manager as fm
 import src.core.security as secure
 import src.logic.importer as importer
-import src.config.constants as const
+import src.const.constants as const
 from PIL import Image
 
 # Aquesta funció carrega les imatges per a les icones
@@ -45,7 +45,12 @@ def update_listing_view(container_frame, path, app_state, status_label, btn_encr
     items = fm.list_directory(path)
 
     if search_text:
-        items = [f for f in items if search_text.lower() in f.lower()]
+        filtered_items = []
+        for f in items:
+            if search_text.lower() in f.lower():
+                filtered_items.append(f)
+        
+        items = filtered_items
 
     # Configuració de columnes
     container_frame.grid_columnconfigure(0, weight=0, minsize=40) 
@@ -76,7 +81,6 @@ def update_listing_view(container_frame, path, app_state, status_label, btn_encr
     for name in items:
         if name.startswith("."): 
             continue 
-        
         full_path = os.path.join(path, name)
         info = fm.get_file_info(full_path)
         if not info["exists"]:
@@ -86,7 +90,10 @@ def update_listing_view(container_frame, path, app_state, status_label, btn_encr
         es_encriptado = name.endswith(".enc")
         
         date_str = info["date_str"]
-        size_str = "-" if es_carpeta else f"{info['size'] / 1024:.1f} KB"
+        if es_carpeta:
+            size_str = "-"
+        else:
+            size_str = f"{info['size'] / 1024:.1f} KB"
         
         if es_carpeta:
             img = IMG_FOLDER
@@ -104,9 +111,14 @@ def update_listing_view(container_frame, path, app_state, status_label, btn_encr
             status_txt = "VISIBLE"
             status_col = const.COLOR_VISIBLE
         
-        txt_icon = "" if img else fallback
+        if img:
+            txt_icon = ""
+        else:
+            txt_icon = fallback   
+        
         pady_row = 2
 
+        # Etiqueta per a la icona (carpeta, arxiu o cadenat)
         icon_label = ctk.CTkLabel(container_frame, text=txt_icon, image=img, width=30, anchor="center")
         icon_label.grid(row=row, column=0, sticky="ew", padx=5, pady=pady_row)
         
@@ -114,6 +126,8 @@ def update_listing_view(container_frame, path, app_state, status_label, btn_encr
         def cmd(n=name, p=path):
             select_file_action(n, p, app_state, status_label, btn_encrypt, btn_decrypt, btn_delete)
         
+
+        # Etiqueta per al nom de l'arxiu, funciona com a botó per seleccionar-lo
         btn_name = ctk.CTkButton(
             container_frame,
             text=name,
@@ -136,8 +150,13 @@ def update_listing_view(container_frame, path, app_state, status_label, btn_encr
             btn_name.bind("<Double-Button-1>", on_double_click)
             icon_label.bind("<Double-Button-1>", on_double_click)
         
+        # Etiqueta per a la data
         ctk.CTkLabel(container_frame, text=date_str, font=const.FONT_NORMAL, text_color=const.COLOR_TEXT_DIM, anchor="w").grid(row=row, column=2, sticky="ew", padx=5, pady=pady_row)
+        
+        # Etiqueta per al mida
         ctk.CTkLabel(container_frame, text=size_str, font=const.FONT_NORMAL, text_color=const.COLOR_TEXT_DIM, anchor="e").grid(row=row, column=3, sticky="ew", padx=5, pady=pady_row)
+        
+        # Etiqueta per al estat
         ctk.CTkLabel(container_frame, text=status_txt, font=const.FONT_SMALL_BOLD, text_color=status_col, anchor="e").grid(row=row, column=4, sticky="ew", padx=(5,10), pady=pady_row+1)
 
         row += 1

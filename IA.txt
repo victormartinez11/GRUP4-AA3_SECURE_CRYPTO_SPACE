@@ -8,3 +8,5 @@ La IA s'ha utilitzat per millorar la redacció i claredat de l'arxiu README.md.
 
 3. Lògica d'Importació:
 S'ha generat amb ajuda d'IA el codi per a la selecció de fitxers en les accions d'importar, específicament la configuració del diàleg d'arxius:
+
+4. Funcionlitats de UI gafades o modificades com a base de la documentacio oficial de les llibreries utilitzades

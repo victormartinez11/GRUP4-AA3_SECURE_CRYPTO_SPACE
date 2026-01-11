@@ -1,4 +1,4 @@
-import src.config.constants as const
+import src.const.constants as constst
 import src.core.file_manager as fichers
 import src.core.security as secure
 
