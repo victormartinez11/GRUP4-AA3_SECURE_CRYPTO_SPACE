@@ -13,5 +13,10 @@
         "User": "marc",
         "Salt": "e5bc033be49374ad0ba5910636930321",
         "Hash": "6d0eab43a32f8ae67f52d1d03fa2410f3a0ed47ca9d6976f7460ff73bdba8dd9"
+    },
+    {
+        "User": "Marc",
+        "Salt": "c190fd782ffc807189653f32d8dea172",
+        "Hash": "3f76e6849772bfa74aa8da104382900e46ebc3679b113e37af8622f89651c399"
     }
 ]

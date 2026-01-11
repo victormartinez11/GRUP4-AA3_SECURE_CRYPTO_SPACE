@@ -10,3 +10,6 @@ La IA s'ha utilitzat per millorar la redacció i claredat de l'arxiu README.md.
 S'ha generat amb ajuda d'IA el codi per a la selecció de fitxers en les accions d'importar, específicament la configuració del diàleg d'arxius:
 
 4. Funcionlitats de UI gafades o modificades com a base de la documentacio oficial de les llibreries utilitzades
+
+5. Barra de desplaçament:
+S'ha utilitazat IA per acabar de solucionar el codi de la barra de desplaçament, perquè no funcionava correctament degut a algunes variables que no estaven bé inicialitzades.
