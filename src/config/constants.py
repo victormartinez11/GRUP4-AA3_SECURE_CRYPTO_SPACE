@@ -1,6 +1,11 @@
-# FITXERS I RUTES
-USERS_FILE = "data/users.json"
-CONFIG_FILE = "last_vault.txt"
+import os
+
+# Determinar la ruta base del projecte 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# FITXERS I RUTES ABSOLUTES
+USERS_FILE = os.path.join(BASE_DIR, "data", "users.json")
+CONFIG_FILE = os.path.join(BASE_DIR, "last_vault.txt")
 
 # SEGURETAT I ENCRIPTACIÓ
 SALT_SIZE = 16

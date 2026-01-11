@@ -2,7 +2,7 @@ import shutil
 from customtkinter import filedialog 
 import os
 import src.core.security as secure
-import src.const.constants as const
+import src.config.constants as const
 from tkinter import messagebox
 import customtkinter as ctk
 import src.core.file_manager as fm

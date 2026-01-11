@@ -4,7 +4,7 @@ from tkinter import messagebox, filedialog
 import src.core.file_manager as fm
 import src.core.security as secure
 import src.logic.importer as importer
-import src.const.constants as const
+import src.config.constants as const
 from PIL import Image
 
 # Aquesta funció carrega les imatges per a les icones

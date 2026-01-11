@@ -2,7 +2,7 @@ import json
 import os
 import datetime
 import shutil
-import src.const.constants as const
+import src.config.constants as const
 
 # Aquesta funció llegeix la llista d'usuaris del fitxer json
 # Fa servir el mòdul json

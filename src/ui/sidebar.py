@@ -2,7 +2,7 @@ import customtkinter as ctk
 from tkinter import ttk
 import os
 import src.core.file_manager as fm 
-import src.const.constants as const
+import src.config.constants as const
 
 def create_sidebar(parent, current_user, import_command, navigate_callback=None):
 

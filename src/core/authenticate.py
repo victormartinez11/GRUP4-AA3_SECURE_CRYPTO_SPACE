@@ -1,4 +1,4 @@
-import src.const.constants as constst
+import src.config.constants as const
 import src.core.file_manager as fichers
 import src.core.security as secure
 
@@ -52,7 +52,7 @@ def register_user(username, password):
         return False, f"Error crític del sistema: {e}"
 
 # Aquesta funció deixa entrar l'usuari si la contrasenya és bona
-# Compara el hash de la contrasenya amb el que tenim guardat
+# compara el hash de la contrasenya amb el que tenim guardat
 def login_user(username, password):
     try:
         if not username or not password:

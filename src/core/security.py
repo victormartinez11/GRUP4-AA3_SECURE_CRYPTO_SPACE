@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 # El mòdul cryptography es fa servir per encriptar i desencriptar de forma segura
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
-import src.const.constants as const
+import src.config.constants as const
 import src.core.file_manager as fil
 
 # Aquesta funció genera una "salt" aleatòria de 16 bytes per fer més segura la clau

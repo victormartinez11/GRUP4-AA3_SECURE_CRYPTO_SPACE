@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import src.core.authenticate as auth
 from src.ui.dashboard import dashboard
-import src.const.constants as const
+import src.config.constants as const
 import src.core.file_manager as fm
 import os
 from tkinter import filedialog

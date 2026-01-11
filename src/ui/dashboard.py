@@ -6,7 +6,7 @@ from src.core.security import encrypt_file, decrypt_file
 import datetime
 import src.logic.importer as importer
 import src.core.file_manager as fm
-import src.const.constants as const
+import src.config.constants as const
 from functools import partial
 import src.ui.dashboard_actions as actions
 # Aquesta funció crea la pantalla del dashboard
